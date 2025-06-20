@@ -3,6 +3,7 @@ from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 import shutil
+from model.train import train_model
 
 app = FastAPI()
 
@@ -28,3 +29,8 @@ def upload_image(label: str = Form(...), file: UploadFile = File(...)):
         shutil.copyfileobj(file.file, f)
 
     return {"status": "saved", "label": label, "filename": file.filename}
+
+
+@app.post("/train")
+def train():
+    return train_model()
