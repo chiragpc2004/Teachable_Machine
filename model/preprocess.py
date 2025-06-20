@@ -1,26 +1,15 @@
 from PIL import Image
 import numpy as np
 import os
-from skimage.feature import hog  
-from skimage import exposure    
 
 def preprocess_image(path):
     # Load image in grayscale and resize
-    img = Image.open(path).convert("L").resize((128, 128))  # 🚀 Upgraded size
-
+    img = Image.open(path).resize((64, 64))
     # Convert to NumPy array
     img_array = np.array(img)
-
-    # Extract HOG features
-    features, _ = hog(
-        img_array,
-        pixels_per_cell=(16, 16),
-        cells_per_block=(2, 2),
-        visualize=True,   
-        block_norm='L2-Hys'
-    )
-
-    return features  
+    # Raw pixel version
+    features = img_array.flatten() / 255.0
+    return features
 
 def load_images(folder):
     X, y = [], []
