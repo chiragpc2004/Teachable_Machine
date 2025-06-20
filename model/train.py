@@ -22,11 +22,4 @@ def train_model():
     acc = accuracy_score(y_test, model.predict(X_test))
     joblib.dump(model, "model/classifier.pkl")
 
-    print(f"Loaded {len(X)} images with labels: {set(y)}")
-    print(f"Label counts: { {label: list(y).count(label) for label in set(y)} }")
-
-    y_pred = model.predict(X_test)
-    print("Actual:", y_test)
-    print("Predicted:", y_pred)
-
     return {"accuracy": acc, "classes": list(set(y))}
