@@ -3,12 +3,12 @@ import numpy as np
 import os
 
 def preprocess_image(path):
-    # Load image in grayscale and resize
-    img = Image.open(path).resize((64, 64))
-    # Convert to NumPy array
-    img_array = np.array(img)
-    # Raw pixel version
-    features = img_array.flatten() / 255.0
+    # Convert image to RGB and resize to 64x64
+    img = Image.open(path).convert("RGB").resize((64, 64))
+    # Convert to NumPy array and normalize
+    img_array = np.array(img).astype(np.float32) / 255.0
+    # Flatten into feature vector
+    features = img_array.flatten()
     return features
 
 def load_images(folder):
