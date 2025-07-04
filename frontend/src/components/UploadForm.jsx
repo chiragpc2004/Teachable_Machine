@@ -5,15 +5,18 @@ function UploadForm({ onUploadSuccess }) {
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState(""); // "success" | "error" | ""
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
     setMessage("");
+    setMessageType("");
   };
 
   const handleUpload = async () => {
-    if (!file || file.type !== "application/zip") {
+    if (!file || !file.name.endsWith(".zip")) {
       setMessage("Please select a valid .zip file.");
+      setMessageType("error");
       return;
     }
 
@@ -24,10 +27,12 @@ function UploadForm({ onUploadSuccess }) {
       setUploading(true);
       await axios.post("http://127.0.0.1:8000/upload", formData);
       setMessage("✅ Upload successful!");
-      if (onUploadSuccess) onUploadSuccess(); // trigger training availability
+      setMessageType("success");
+      if (onUploadSuccess) onUploadSuccess();
     } catch (error) {
       console.error(error);
       setMessage("❌ Upload failed. Try again.");
+      setMessageType("error");
     } finally {
       setUploading(false);
     }
@@ -35,12 +40,26 @@ function UploadForm({ onUploadSuccess }) {
 
   return (
     <div className="upload-form">
-      <h2>Step 1: Upload Training Data (.zip)</h2>
-      <input type="file" accept=".zip" onChange={handleFileChange} />
-      <button onClick={handleUpload} disabled={uploading}>
+      <h2>📂 Step 1: Upload Training Data (.zip)</h2>
+
+      <label className="file-label">
+        <input
+          type="file"
+          accept=".zip"
+          onChange={handleFileChange}
+          disabled={uploading}
+        />
+      </label>
+
+      <button onClick={handleUpload} disabled={uploading || !file}>
         {uploading ? "Uploading..." : "Upload"}
       </button>
-      <p>{message}</p>
+
+      {message && (
+        <p className={`upload-message ${messageType}`}>
+          {message}
+        </p>
+      )}
     </div>
   );
 }

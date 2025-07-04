@@ -31,19 +31,33 @@ function PredictForm() {
 
   return (
     <div className="predict-form">
-      <h2>Step 3: Predict from Image</h2>
-      <input type="file" accept="image/*" onChange={handleFileChange} />
-      <button onClick={handlePredict} disabled={loading}>
+      <h2>📸 Step 3: Predict from Image</h2>
+
+      <label className="file-label">
+        <input type="file" accept="image/*" onChange={handleFileChange} disabled={loading} />
+      </label>
+
+      <button onClick={handlePredict} disabled={loading || !image}>
         {loading ? "Predicting..." : "Predict"}
       </button>
 
       {image && (
         <div className="preview">
-          <img src={URL.createObjectURL(image)} alt="Preview" width="150" />
+          <img
+            src={URL.createObjectURL(image)}
+            alt="Preview"
+            width="160"
+            height="160"
+            style={{ marginTop: "1rem", borderRadius: "8px", objectFit: "cover" }}
+          />
         </div>
       )}
 
-      {prediction && <p className="prediction-result">🧠 Prediction: <strong>{prediction}</strong></p>}
+      {prediction && (
+        <p className={`prediction-result ${prediction.startsWith("❌") ? "error" : "success"}`}>
+          🧠 Prediction: <strong>{prediction}</strong>
+        </p>
+      )}
     </div>
   );
 }
