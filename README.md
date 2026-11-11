@@ -1,111 +1,79 @@
 # 🧠 Teachable Machine
 
-A modern, user-friendly, and customizable Teachable Machine-like web application for training image classifiers directly in the browser using Random Forest Classifiers.
-
+A small web app, inspired by Google's Teachable Machine, for training your own image classifier. You upload labelled images, train a model with one click, and test it on new pictures.
 
 ---
 
 ## 🚀 Features
 
-- 📸 Upload images by class
-- 🏋️ Train a custom image classification model in-browser
-- 🔮 Predict results in real-time from uploaded test images
-- 💅 Beautiful UI with Google-inspired design system using Tailwind CSS v4.1
-- ⚡ Super-fast build and development using Vite
-- 🔁 Built-in reset and retrain flow (optional toggle)
+- 📂 Upload training data as a `.zip` with one folder per class
+- 🏋️ Train a Random Forest classifier on your images with one click
+- 🔮 Upload a new image and get a predicted class back
+- 🔁 Reset and retrain from scratch
+
+---
+
+## 🧪 How It Works
+
+1. **Upload:** the frontend sends your `.zip` to the backend, which extracts it. Each folder name becomes a class label.
+2. **Train:** the backend loads the images with Pillow, converts them to feature arrays and trains a scikit-learn `RandomForestClassifier`. It holds out a test split to report accuracy, then saves the model with `joblib`.
+3. **Predict:** you upload a test image, and the backend preprocesses it the same way and returns the predicted class.
 
 ---
 
 ## 🧰 Tech Stack
 
-- **Frontend**: React, Vite
-- **Styling**: Tailwind CSS 4.1
-- **ML Engine**: TensorFlow.js
-- **Icons**: React Icons (e.g., Lucide, FontAwesome)
-- **Animations**: AOS (Animate on Scroll), Framer Motion
-
----
-
-## 📦 Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/your-username/teachable-machine-clone.git
-cd teachable-machine-clone
-
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-```
+- **Frontend:** React 19, Vite, Axios, AOS (scroll animations), React Icons
+- **Backend:** FastAPI, scikit-learn, Pillow, NumPy, joblib
 
 ---
 
 ## 📁 Project Structure
 
 ```
-├── public/                 # Static assets
-├── src/
-│   ├── components/         # Reusable UI components
-│   ├── utils/              # Helper functions and model logic
-│   ├── App.jsx             # Main app layout
-│   ├── main.jsx            # Vite entry point
-│   └── index.css           # Tailwind base + custom variables
-├── app.css                 # Extended theme and component-level styles
-├── package.json            # Project metadata and scripts
-├── vite.config.js          # Vite configuration
-└── README.md               # This file
+├── backend/
+│   ├── main.py                 # FastAPI app: /upload, /train, /predict, /reset
+│   ├── model/
+│   │   ├── train.py            # Random Forest training + accuracy
+│   │   └── predict.py          # Single-image prediction
+│   └── utils/
+│       └── image_processing.py # Unzipping and image loading
+└── frontend/
+    ├── src/
+    │   ├── components/         # UploadForm, TrainButton, PredictForm, ResetButton, Navbar
+    │   ├── App.jsx
+    │   └── main.jsx
+    └── package.json
 ```
 
 ---
 
-## 🧪 How It Works
+## 📦 Run Locally
 
-1. **Upload**: Users add images grouped by class labels.
-2. **Train**: TensorFlow.js uses the MobileNet feature extractor and a custom classifier.
-3. **Predict**: Users test their model with new images to see predictions.
-
----
-
-## 🖼️ UI Sections
-
-- **Upload Section** – Drag-and-drop or file input grouped by class
-- **Train Section** – Start training after uploading data
-- **Predict Section** – Upload and predict on new images
-- **Optional Reset** – Clear model and data (can be removed for production)
-
----
-
-## 🛠 Customization
-
-To tweak the design system, update the CSS variables in `index.css`:
-
-```css
-:root {
-  --bg-light: #f9fafb;
-  --text-main: #1f2937;
-  --accent: #4f46e5;
-  ...
-}
+```bash
+git clone https://github.com/chiragpc2004/Teachable_Machine.git
+cd Teachable_Machine
 ```
 
-To extend Tailwind configuration, edit `tailwind.config.js`.
+**Backend** (runs on port 8000):
 
----
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate        # venv\Scripts\activate on Windows
+pip install fastapi uvicorn python-multipart scikit-learn pillow numpy joblib
+uvicorn main:app --reload
+```
 
-## 🌐 Live Demo
+**Frontend** (in a second terminal, runs on port 5173):
 
-> Coming soon! Deploy on [Vercel](https://vercel.com/) / [Netlify](https://netlify.com/) / GitHub Pages
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
----
-
-## 🤝 Contributing
-
-1. Fork the repo
-2. Create a feature branch: `git checkout -b feature/your-feature`
-3. Commit your changes: `git commit -m "feat: add your feature"`
-4. Push and open a pull request
+Open [http://localhost:5173](http://localhost:5173).
 
 ---
 
@@ -113,8 +81,6 @@ To extend Tailwind configuration, edit `tailwind.config.js`.
 
 [MIT](./LICENSE)
 
----
-
 ## 🙌 Credits
 
-Inspired by [Teachable Machine by Google](https://teachablemachine.withgoogle.com/)
+Inspired by [Teachable Machine by Google](https://teachablemachine.withgoogle.com/).
