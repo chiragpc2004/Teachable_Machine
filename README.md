@@ -4,7 +4,7 @@ Train an image classifier in your browser. You don't write code, and your images
 
 Inspired by [Google's Teachable Machine](https://teachablemachine.withgoogle.com/). This is an independent project.
 
-> **Status: Milestone 1 (foundation + in-browser model).** The page is a working developer harness: add images to classes, train, and test with per-class confidence. Webcam capture, saving and export, and the polished UI come in later milestones.
+> **Status: Milestone 1 (foundation + in-browser model).** The page is a working developer harness: add images to classes, train, and test with per-class confidence. Zip and folder import, saving, export and the polished UI come next. See [docs/PRODUCT.md](docs/PRODUCT.md).
 
 ## How it works
 
