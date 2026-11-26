@@ -1,116 +1,184 @@
-// App.jsx
-import React, { useEffect, useState } from "react";
-import UploadForm from "./components/UploadForm";
-import TrainButton from "./components/TrainButton";
-import PredictForm from "./components/PredictForm";
-import ResetButton from "./components/ResetButton";
-import "./App.css";
-import AOS from "aos";
-import "aos/dist/aos.css";
-import { FaUpload, FaRobot, FaPlayCircle, FaUndoAlt } from "react-icons/fa";
+import { useRef, useState } from 'react';
+import { validateDataset } from './ml/index.js';
+import ClassCard from './lab/ClassCard.jsx';
+import PredictionPanel from './lab/PredictionPanel.jsx';
+import { useImageClassifier } from './lab/useImageClassifier.js';
 
-function App() {
-  const [loadingMessage, setLoadingMessage] = useState("");
+let nextId = 1;
+const newId = () => nextId++;
+const newClass = (n) => ({ id: newId(), name: `Class ${n}`, samples: [] });
+const MAX_CLASSES = 10;
 
-  const handleTrainingComplete = () => {
-    setLoadingMessage("");
-    console.log("Training or Reset operation completed!");
-  };
+export default function App() {
+  const { extractorStatus, embedFile, train, predictFile } = useImageClassifier();
+  const [classes, setClasses] = useState(() => [newClass(1), newClass(2)]);
+  const [training, setTraining] = useState({ state: 'idle' });
+  const datasetVersion = useRef(0);
+  const [trainedVersion, setTrainedVersion] = useState(null);
 
-  useEffect(() => {
-    AOS.init({ once: true, duration: 800 });
-  }, []);
+  const modelReady = extractorStatus.state === 'ready';
+  const isTraining = training.state === 'training';
+
+  function updateClass(id, change, touchesSamples = false) {
+    if (touchesSamples) datasetVersion.current++;
+    setClasses((cs) => cs.map((c) => (c.id === id ? { ...c, ...change(c) } : c)));
+  }
+
+  function revoke(samples) {
+    samples.forEach((s) => URL.revokeObjectURL(s.url));
+  }
+
+  async function addSamples(id, files) {
+    let failed = 0;
+    const added = [];
+    for (const file of files) {
+      try {
+        const embedding = await embedFile(file);
+        added.push({ id: newId(), url: URL.createObjectURL(file), embedding });
+      } catch (err) {
+        console.warn(err.message);
+        failed++;
+      }
+    }
+    if (added.length) updateClass(id, (c) => ({ samples: [...c.samples, ...added] }), true);
+    return { added: added.length, failed };
+  }
+
+  function removeClass(id) {
+    datasetVersion.current++;
+    setClasses((cs) => {
+      revoke(cs.find((c) => c.id === id)?.samples ?? []);
+      return cs.filter((c) => c.id !== id);
+    });
+  }
+
+  const validation = validateDataset(classes.map((c) => ({ name: c.name, count: c.samples.length })));
+  // Renaming also changes the labels, so names are part of what makes the model stale.
+  const fingerprint = `${datasetVersion.current}|${classes.map((c) => c.name).join('|')}`;
+  const hasModel = training.state === 'done';
+  const stale = hasModel && trainedVersion !== fingerprint;
+
+  async function handleTrain() {
+    const snapshot = fingerprint;
+    setTraining({ state: 'training', epoch: 0, total: 0 });
+    try {
+      const result = await train(
+        classes.map((c) => ({ name: c.name.trim(), embeddings: c.samples.map((s) => s.embedding) })),
+        (epoch, total) => setTraining({ state: 'training', epoch, total }),
+      );
+      setTraining({ state: 'done', ...result });
+      setTrainedVersion(snapshot);
+    } catch (err) {
+      console.error(err);
+      setTraining({
+        state: 'error',
+        message: 'Training failed. Try again, or reload the page if it keeps happening.',
+      });
+    }
+  }
 
   return (
-    <div className="page" data-aos="fade-in">
-      {/* Navbar */}
-      <nav className="navbar">
-        {/* NEW: Use the .container class here */}
-        <div className="container navbar-content">
-          <a href="#" className="logo">
-            <span className="logo-gradient">🧠 Teachable</span>
-          </a>
-          <div className="nav-links">
-            <a href="#upload">Upload</a>
-            <a href="#train">Train</a>
-            <a href="#predict">Predict</a>
-            <a href="#reset">Reset</a>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero */}
-      <header className="hero">
-        {/* NEW: Use the .container class here for hero content */}
-        <div className="container hero-inner" data-aos="fade-down">
-          <h1 className="hero-title">Teachable Image Classifier</h1>
-          <p className="hero-subtitle">
-            Upload. Train. Predict. A no-code way to build custom image classification models with ease.
-          </p>
-          <a href="#upload" className="cta-button">
-            🚀 Get Started
-          </a>
-        </div>
+    <div className="page">
+      <header className="masthead">
+        <h1>Teachable</h1>
+        <p>Train an image classifier in your browser. Your images never leave this device.</p>
+        <p className={`model-status model-status--${extractorStatus.state}`} role="status">
+          {extractorStatus.state === 'loading' && 'Loading image model…'}
+          {extractorStatus.state === 'ready' && `Image model ready (${extractorStatus.backend})`}
+          {extractorStatus.state === 'error' && extractorStatus.message}
+        </p>
       </header>
 
-      {/* Main Sections */}
-      {/* The main-content already uses .layout which we'll repurpose into .container behavior */}
-      <main className="container main-content"> {/* Changed layout to container */}
-        <section id="upload" data-aos="zoom-in-up">
-          <div className="section-wrapper upload-form">
-            <h2 className="section-title">
-              <FaUpload style={{ marginRight: "0.5rem" }} /> Upload Your Images
-            </h2>
-            <UploadForm />
+      <main className="layout">
+        <section aria-labelledby="classes-title">
+          <h2 id="classes-title">1. Add examples for each class</h2>
+          <div className="class-list">
+            {classes.map((c) => (
+              <ClassCard
+                key={c.id}
+                cls={c}
+                disabled={!modelReady || isTraining}
+                canRemove={classes.length > 2}
+                onRename={(name) => updateClass(c.id, () => ({ name }))}
+                onRemove={() => removeClass(c.id)}
+                onAddSamples={(files) => addSamples(c.id, files)}
+                onRemoveSample={(sid) =>
+                  updateClass(
+                    c.id,
+                    (cl) => {
+                      revoke(cl.samples.filter((s) => s.id === sid));
+                      return { samples: cl.samples.filter((s) => s.id !== sid) };
+                    },
+                    true,
+                  )
+                }
+                onClear={() =>
+                  updateClass(
+                    c.id,
+                    (cl) => {
+                      revoke(cl.samples);
+                      return { samples: [] };
+                    },
+                    true,
+                  )
+                }
+              />
+            ))}
+          </div>
+          {classes.length < MAX_CLASSES && (
+            <button
+              type="button"
+              className="btn btn--ghost"
+              onClick={() => setClasses((cs) => [...cs, newClass(cs.length + 1)])}
+              disabled={isTraining}
+            >
+              + Add a class
+            </button>
+          )}
+        </section>
+
+        <section className="card" aria-labelledby="train-title">
+          <h2 id="train-title">2. Train</h2>
+          {validation.errors.length > 0 && (
+            <ul className="checklist">
+              {validation.errors.map((e) => (
+                <li key={e}>{e}</li>
+              ))}
+            </ul>
+          )}
+          {validation.ok && validation.warnings.length > 0 && (
+            <ul className="checklist checklist--warn">
+              {validation.warnings.map((w) => (
+                <li key={w}>{w}</li>
+              ))}
+            </ul>
+          )}
+          <button
+            type="button"
+            className="btn btn--primary"
+            onClick={handleTrain}
+            disabled={!modelReady || !validation.ok || isTraining}
+          >
+            {isTraining ? 'Training…' : hasModel ? 'Retrain model' : 'Train model'}
+          </button>
+          {isTraining && (
+            <progress max={training.total || 1} value={training.epoch} aria-label="Training progress" />
+          )}
+          <div aria-live="polite">
+            {training.state === 'done' && (
+              <p className="notice notice--ok">
+                Trained.{' '}
+                {training.validationAccuracy == null
+                  ? 'Not enough samples to measure accuracy.'
+                  : `Accuracy on held-back samples: ${Math.round(training.validationAccuracy * 100)}%.`}
+              </p>
+            )}
+            {training.state === 'error' && <p className="notice notice--error">{training.message}</p>}
           </div>
         </section>
 
-        <section id="train" data-aos="zoom-in-up" data-aos-delay="100">
-          <div className="section-wrapper train-section">
-            <h2 className="section-title">
-              <FaRobot style={{ marginRight: "0.5rem" }} /> Train Your Model
-            </h2>
-            <TrainButton
-              onTrainingComplete={handleTrainingComplete}
-              setLoadingMessage={setLoadingMessage}
-            />
-            {loadingMessage && <p className="status">{loadingMessage}</p>}
-          </div>
-        </section>
-
-        <section id="predict" data-aos="zoom-in-up" data-aos-delay="200">
-          <div className="section-wrapper predict-form">
-            <h2 className="section-title">
-              <FaPlayCircle style={{ marginRight: "0.5rem" }} /> Make a Prediction
-            </h2>
-            <PredictForm />
-          </div>
-        </section>
-
-        <section id="reset" data-aos="zoom-in-up" data-aos-delay="300">
-          <div className="section-wrapper reset-section">
-            <h2 className="section-title">
-              <FaUndoAlt style={{ marginRight: "0.5rem" }} /> Reset Model
-            </h2>
-            <ResetButton
-              onReset={handleTrainingComplete}
-              setLoadingMessage={setLoadingMessage}
-            />
-          </div>
-        </section>
+        <PredictionPanel ready={hasModel} stale={stale} predictFile={predictFile} />
       </main>
-
-      {/* Footer */}
-      {/* NEW: Use the .container class here for footer content */}
-      <footer className="footer">
-         <div className="container"> {/* Added a new div for container inside footer */}
-            <p>
-              Made with ❤️ by <strong>Chirag Poojarikodi</strong> · MIT Manipal
-            </p>
-         </div>
-      </footer>
     </div>
   );
 }
-
-export default App;
