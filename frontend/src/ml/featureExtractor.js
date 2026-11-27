@@ -21,6 +21,8 @@ export async function loadFeatureExtractor(source) {
   const embeddingSize = truncated.outputs[0].shape[1];
   return {
     embeddingSize,
+    /** The truncated MobileNet itself; used to build a self-contained model for export. */
+    model: truncated,
     /** @param {tf.Tensor4D} input [n, 224, 224, 3] in [-1, 1]. Returns [n, embeddingSize]. */
     embed: (input) => tf.tidy(() => truncated.predict(input)),
     dispose: () => truncated.dispose(),

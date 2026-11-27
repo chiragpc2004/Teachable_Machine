@@ -4,7 +4,7 @@ Train an image classifier in your browser. You don't write code, and your images
 
 Inspired by [Google's Teachable Machine](https://teachablemachine.withgoogle.com/). This is an independent project.
 
-> **Status: Milestone 1 (foundation + in-browser model).** The page is a working developer harness: add images to classes, train, and test with per-class confidence. Zip and folder import, saving, export and the polished UI come next. See [docs/PRODUCT.md](docs/PRODUCT.md).
+> **Status: Phase 5 (core app).** The full journey works: add images (picker, drag-and-drop, folders, zips), train, test images in batches, auto-save in the browser, and export the model or the project. The visual design is still plain; polish is Phase 6. See [docs/PRODUCT.md](docs/PRODUCT.md).
 
 ## How it works
 
@@ -34,6 +34,7 @@ npm run dev          # http://localhost:5173
 | `npm run lint` / `npm run format` | ESLint / Prettier |
 | `npm run fetch-model` | Re-download the MobileNet weights into `public/models/` |
 | `npm run validate-model -- <dir>` | Measure accuracy on a folder-per-class image dataset |
+| `node scripts/build-sample.mjs <flower_photos>` | Rebuild the bundled sample project (with photo credits) |
 
 CI (GitHub Actions) runs lint, format check, unit tests, build and E2E tests on every push and pull request.
 
@@ -42,13 +43,16 @@ CI (GitHub Actions) runs lint, format check, unit tests, build and E2E tests on 
 ```
 frontend/
 ├── public/models/       # Self-hosted MobileNet weights (1.96 MB)
+├── public/samples/      # Sample project: 3 flower classes, CC-BY photos with credits
 ├── src/
-│   ├── ml/              # Framework-free ML code: preprocess, feature extractor, classifier, rules
-│   ├── lab/             # React UI for the milestone-1 harness
-│   └── App.jsx
+│   ├── ml/              # Framework-free ML: preprocess, feature extractor, classifier, export
+│   ├── project/         # Project state, zip/folder import, saving (IndexedDB), project files
+│   ├── app/             # App.jsx, the TF.js engine hook, sample loader
+│   └── ui/              # React components
 ├── scripts/             # fetch-model, validate-model
 └── e2e/                 # Playwright tests
-docs/MODEL.md            # Pipeline, accuracy numbers, limitations
+docs/MODEL.md            # Pipeline, accuracy numbers, export format, limitations
+docs/PRODUCT.md          # v1 product spec
 ```
 
 ## History

@@ -25,3 +25,14 @@ export function syntheticImage(hue, seed, size = 96) {
 
 export const images = (hue, n, offset = 0) =>
   Array.from({ length: n }, (_, i) => syntheticImage(hue, i + offset));
+
+/** A dataset zip as produced by macOS "Compress": wrapper folder + __MACOSX junk. */
+export async function datasetZip(perClass = 6) {
+  const { zipSync } = await import('fflate');
+  const files = { 'pets/': new Uint8Array(), '__MACOSX/pets/._red': new Uint8Array([0]) };
+  for (const hue of ['red', 'blue']) {
+    for (const img of images(hue, perClass)) files[`pets/${hue}/${img.name}`] = new Uint8Array(img.buffer);
+  }
+  files['pets/notes.txt'] = new TextEncoder().encode('ignore me');
+  return { name: 'pets.zip', mimeType: 'application/zip', buffer: Buffer.from(zipSync(files)) };
+}

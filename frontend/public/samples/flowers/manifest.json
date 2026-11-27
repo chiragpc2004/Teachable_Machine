@@ -1,0 +1,91 @@
+{
+  "name": "Flowers",
+  "classes": [
+    {
+      "name": "Daisy",
+      "images": [
+        "daisy/1.jpg",
+        "daisy/2.jpg",
+        "daisy/3.jpg",
+        "daisy/4.jpg",
+        "daisy/5.jpg",
+        "daisy/6.jpg",
+        "daisy/7.jpg",
+        "daisy/8.jpg",
+        "daisy/9.jpg",
+        "daisy/10.jpg",
+        "daisy/11.jpg",
+        "daisy/12.jpg",
+        "daisy/13.jpg",
+        "daisy/14.jpg",
+        "daisy/15.jpg",
+        "daisy/16.jpg",
+        "daisy/17.jpg",
+        "daisy/18.jpg",
+        "daisy/19.jpg",
+        "daisy/20.jpg"
+      ]
+    },
+    {
+      "name": "Roses",
+      "images": [
+        "roses/1.jpg",
+        "roses/2.jpg",
+        "roses/3.jpg",
+        "roses/4.jpg",
+        "roses/5.jpg",
+        "roses/6.jpg",
+        "roses/7.jpg",
+        "roses/8.jpg",
+        "roses/9.jpg",
+        "roses/10.jpg",
+        "roses/11.jpg",
+        "roses/12.jpg",
+        "roses/13.jpg",
+        "roses/14.jpg",
+        "roses/15.jpg",
+        "roses/16.jpg",
+        "roses/17.jpg",
+        "roses/18.jpg",
+        "roses/19.jpg",
+        "roses/20.jpg"
+      ]
+    },
+    {
+      "name": "Sunflowers",
+      "images": [
+        "sunflowers/1.jpg",
+        "sunflowers/2.jpg",
+        "sunflowers/3.jpg",
+        "sunflowers/4.jpg",
+        "sunflowers/5.jpg",
+        "sunflowers/6.jpg",
+        "sunflowers/7.jpg",
+        "sunflowers/8.jpg",
+        "sunflowers/9.jpg",
+        "sunflowers/10.jpg",
+        "sunflowers/11.jpg",
+        "sunflowers/12.jpg",
+        "sunflowers/13.jpg",
+        "sunflowers/14.jpg",
+        "sunflowers/15.jpg",
+        "sunflowers/16.jpg",
+        "sunflowers/17.jpg",
+        "sunflowers/18.jpg",
+        "sunflowers/19.jpg",
+        "sunflowers/20.jpg"
+      ]
+    }
+  ],
+  "test": [
+    "test/daisy-1.jpg",
+    "test/daisy-2.jpg",
+    "test/daisy-3.jpg",
+    "test/roses-1.jpg",
+    "test/roses-2.jpg",
+    "test/roses-3.jpg",
+    "test/sunflowers-1.jpg",
+    "test/sunflowers-2.jpg",
+    "test/sunflowers-3.jpg"
+  ]
+}
