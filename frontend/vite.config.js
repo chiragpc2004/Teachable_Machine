@@ -22,9 +22,17 @@ function productionHeaders() {
   };
 }
 
+const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
+// Cloudflare Pages and GitHub Actions both expose the commit being built.
+const commit = (process.env.CF_PAGES_COMMIT_SHA || process.env.GITHUB_SHA || '').slice(0, 7);
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), productionHeaders()],
+  define: {
+    // Shown in the footer and in bug reports, so a report says exactly which build it's about.
+    'import.meta.env.VITE_APP_VERSION': JSON.stringify(commit ? `${pkg.version} (${commit})` : pkg.version),
+  },
   build: {
     // TensorFlow.js is one ~250 KB (gzipped) chunk that loads after the page renders.
     // scripts/check-bundle.mjs enforces our real size budget instead of this warning.

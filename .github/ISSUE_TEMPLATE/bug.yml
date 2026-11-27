@@ -1,0 +1,37 @@
+name: Report a problem
+description: Something in the app didn't work as expected.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please **don't attach photos you wouldn't want to be public**: issues on this repository are public.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Click "Try it with flowers"
+        2. ...
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      description: Shown at the bottom of the page. Filled in automatically when you use the app's "Report a problem" link.
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and device
+      placeholder: e.g. Safari on iPhone 13, iOS 19
+  - type: textarea
+    id: error
+    attributes:
+      label: Error message (if any)
+      render: text

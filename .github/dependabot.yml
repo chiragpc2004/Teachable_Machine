@@ -1,0 +1,18 @@
+# Weekly update PRs. CI runs the full test suite on each one; see docs/MAINTENANCE.md for how
+# to review them (TensorFlow.js updates need an accuracy re-check).
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      # Dev tools in one PR; runtime packages (React, TF.js, fflate, idb-keyval) individually.
+      dev-dependencies:
+        dependency-type: development
+        update-types: [minor, patch]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
