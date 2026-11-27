@@ -265,7 +265,11 @@ export default function App() {
   );
 
   return (
-    <div className="page" data-state={ready && loaded ? 'ready' : engine.status.state}>
+    <div
+      className="page"
+      data-state={ready && loaded ? 'ready' : engine.status.state}
+      data-backend={engine.status.backend ?? ''}
+    >
       <header className="topbar">
         <span className="brand">
           <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" width="24" height="24" />
