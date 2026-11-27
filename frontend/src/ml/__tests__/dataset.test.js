@@ -16,7 +16,7 @@ describe('validateDataset', () => {
       { name: 'Dog', count: 0 },
     ]);
     expect(r.ok).toBe(false);
-    expect(r.errors[0]).toMatch(/at least 2 classes/);
+    expect(r.errors[0]).toMatch(/Add images to at least 2 classes/);
   });
 
   it('blocks classes below the hard minimum', () => {
@@ -25,7 +25,7 @@ describe('validateDataset', () => {
       { name: 'Dog', count: 30 },
     ]);
     expect(r.ok).toBe(false);
-    expect(r.errors.join()).toMatch(/"Cat" needs at least 5/);
+    expect(r.errors.join()).toMatch(/"Cat" needs at least 5 images/);
   });
 
   it('warns (but allows) small and unbalanced classes', () => {
@@ -34,8 +34,8 @@ describe('validateDataset', () => {
       { name: 'Dog', count: 40 },
     ]);
     expect(r.ok).toBe(true);
-    expect(r.warnings.some((w) => w.includes('"Cat" has 6'))).toBe(true);
-    expect(r.warnings.some((w) => w.includes('unbalanced'))).toBe(true);
+    expect(r.warnings.some((w) => w.includes('"Cat" has 6 images'))).toBe(true);
+    expect(r.warnings.some((w) => w.includes('far more images'))).toBe(true);
   });
 
   it('rejects empty and duplicate names', () => {

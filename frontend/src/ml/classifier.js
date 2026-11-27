@@ -27,7 +27,7 @@ export function createClassifierHead(embeddingSize, numClasses, options = {}) {
  * @param {number[]} args.labels class index per row
  * @param {number} args.numClasses
  * @param {(epoch: number, totalEpochs: number, logs: object) => void} [args.onEpochEnd]
- * @returns {Promise<{ model: tf.Sequential, validationAccuracy: number | null, trainAccuracy: number }>}
+ * @returns {Promise<{ model: tf.Sequential, validationAccuracy: number | null, validationSize: number, trainAccuracy: number }>}
  */
 export async function trainClassifier({ embeddings, labels, numClasses, onEpochEnd, options = {} }) {
   const settings = { ...TRAINING_DEFAULTS, ...options };
@@ -68,6 +68,7 @@ export async function trainClassifier({ embeddings, labels, numClasses, onEpochE
     });
     return {
       model,
+      validationSize: validation.length,
       trainAccuracy: accuracy(
         model,
         trainSet.xs,

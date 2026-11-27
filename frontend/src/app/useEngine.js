@@ -122,6 +122,7 @@ export function useEngine() {
         labels: names,
         revision,
         validationAccuracy: result.validationAccuracy,
+        validationSize: result.validationSize,
         trainedAt: new Date().toISOString(),
       };
       saveTrainedModel(result.model, meta).catch((err) => console.warn('Could not save model', err));

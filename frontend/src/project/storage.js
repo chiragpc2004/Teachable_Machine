@@ -20,6 +20,7 @@ export async function saveProject(project) {
     project.classes.map(async (c) => ({
       id: c.id,
       name: c.name,
+      color: c.color,
       samples: await Promise.all(
         c.samples.map(async (s) => ({
           id: s.id,

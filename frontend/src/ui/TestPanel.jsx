@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import { createId } from '../project/projectState.js';
+import { CLASS_COLORS, createId } from '../project/projectState.js';
 import { ACCEPTED_IMAGE_TYPES } from './accept.js';
+import ConfidenceBars from './ConfidenceBars.jsx';
 import DropZone from './DropZone.jsx';
 
 const MAX_RESULTS = 24;
 const pct = (x) => `${Math.round(x * 100)}%`;
 
-export default function TestPanel({ ready, stale, predictFile, onLoadSampleTests, onError }) {
+export default function TestPanel({ ready, stale, predictFile, colorByLabel, onLoadSampleTests, onError }) {
   const [results, setResults] = useState([]); // { id, url, name, result?, error? }
   const [busy, setBusy] = useState(false);
   const urls = useRef(new Set());
@@ -49,26 +50,29 @@ export default function TestPanel({ ready, stale, predictFile, onLoadSampleTests
 
   return (
     <DropZone
-      className="card"
+      className="panel-section"
       disabled={!ready || busy}
       label="Drop to test"
       onItems={(items) => run(items.map((i) => i.file))}
       onError={onError}
     >
       <section aria-labelledby="test-title">
-        <h2 id="test-title">3. Test</h2>
+        <h2 id="test-title" className="panel-section__title">
+          <span className="step" aria-hidden="true">
+            3
+          </span>
+          Test
+        </h2>
         {!ready ? (
-          <p className="empty">Train a model first, then try it on images it hasn't seen.</p>
+          <p className="muted small">After training, try the model on photos it hasn&rsquo;t seen.</p>
         ) : (
           <>
             {stale && (
-              <p className="notice notice--warn">
-                Testing the previous model. Retrain to include your changes.
-              </p>
+              <p className="notice notice--warn small">Testing the previous model until you train again.</p>
             )}
             <div className="row">
               <label className={`btn btn--primary ${busy ? 'btn--disabled' : ''}`}>
-                {busy ? 'Testing…' : 'Choose test images'}
+                {busy ? 'Checking…' : 'Choose photos to test'}
                 <input
                   type="file"
                   accept={ACCEPTED_IMAGE_TYPES}
@@ -89,63 +93,56 @@ export default function TestPanel({ ready, stale, predictFile, onLoadSampleTests
                   disabled={busy}
                   onClick={() => onLoadSampleTests().then(run, (err) => onError(err))}
                 >
-                  Try sample test images
-                </button>
-              )}
-              {results.length > 0 && (
-                <button type="button" className="btn btn--ghost" onClick={clear} disabled={busy}>
-                  Clear results
+                  Use sample test photos
                 </button>
               )}
             </div>
-            <p className="hint">
-              Or drop images here. Results below 60% confidence show as &ldquo;Not sure&rdquo;.
-            </p>
+            <p className="muted small">You can also drop photos here.</p>
           </>
         )}
 
         {results.length > 0 && (
-          <ul className="results" aria-live="polite">
-            {results.map((r) => (
-              <li key={r.id} className="result">
-                <img src={r.url} alt={r.name} className="result__img" />
-                <div className="result__body">
-                  {r.error ? (
-                    <p className="notice notice--error">{r.error}</p>
-                  ) : (
-                    <>
-                      <p className="result__headline">
-                        {r.result.uncertain ? (
-                          <>
-                            Not sure{' '}
-                            <span className="muted">
-                              (best guess {r.result.ranked[0].label}, {pct(r.result.confidence)})
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <strong>{r.result.label}</strong>{' '}
-                            <span className="muted">{pct(r.result.confidence)}</span>
-                          </>
-                        )}
-                      </p>
-                      <ul className="bars">
-                        {r.result.ranked.map((x) => (
-                          <li key={x.label}>
-                            <span className="bars__label">{x.label}</span>
-                            <span className="bars__track">
-                              <span className="bars__fill" style={{ width: pct(x.probability) }} />
-                            </span>
-                            <span className="bars__value">{pct(x.probability)}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
+          <>
+            <ul className="results" aria-live="polite">
+              {results.map((r) => (
+                <li key={r.id} className={`result ${r.result?.uncertain ? 'result--unsure' : ''}`}>
+                  <img src={r.url} alt={r.name} className="result__img" />
+                  <div className="result__body">
+                    {r.error ? (
+                      <p className="notice notice--error small">{r.error}</p>
+                    ) : (
+                      <>
+                        <p className="result__headline">
+                          {r.result.uncertain ? (
+                            <>
+                              <span className="chip chip--unsure">Not sure</span>
+                              <span className="muted small">
+                                Leaning {r.result.ranked[0].label}, {pct(r.result.confidence)}
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <span
+                                className="chip"
+                                style={{ '--class': CLASS_COLORS[colorByLabel[r.result.label] ?? 9] }}
+                              >
+                                {r.result.label}
+                              </span>
+                              <span className="muted small">{pct(r.result.confidence)} sure</span>
+                            </>
+                          )}
+                        </p>
+                        <ConfidenceBars ranked={r.result.ranked} colorByLabel={colorByLabel} />
+                      </>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <button type="button" className="btn btn--quiet btn--small" onClick={clear} disabled={busy}>
+              Clear results
+            </button>
+          </>
         )}
       </section>
     </DropZone>

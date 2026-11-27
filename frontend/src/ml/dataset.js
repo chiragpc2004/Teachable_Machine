@@ -21,14 +21,14 @@ export function validateDataset(classes) {
 
   const filled = classes.filter((c) => c.count > 0);
   if (filled.length < MIN_CLASSES) {
-    errors.push(`Add samples to at least ${MIN_CLASSES} classes.`);
+    errors.push(`Add images to at least ${MIN_CLASSES} classes.`);
   }
   for (const c of filled) {
     if (c.count < MIN_SAMPLES_PER_CLASS) {
-      errors.push(`"${c.name}" needs at least ${MIN_SAMPLES_PER_CLASS} samples (has ${c.count}).`);
+      errors.push(`"${c.name}" needs at least ${MIN_SAMPLES_PER_CLASS} images (has ${c.count}).`);
     } else if (c.count < RECOMMENDED_SAMPLES_PER_CLASS) {
       warnings.push(
-        `"${c.name}" has ${c.count} samples; ${RECOMMENDED_SAMPLES_PER_CLASS}+ varied samples usually work better.`,
+        `"${c.name}" has ${c.count} images; ${RECOMMENDED_SAMPLES_PER_CLASS}+ varied ones usually work better.`,
       );
     }
   }
@@ -38,7 +38,7 @@ export function validateDataset(classes) {
     const ratio = Math.max(...counts) / Math.min(...counts);
     if (ratio > MAX_IMBALANCE_RATIO) {
       warnings.push(
-        'Classes are unbalanced; the model may favour the larger ones. Try adding samples to the smaller classes.',
+        'Some classes have far more images than others, so the model may favour them. Add images to the smaller classes.',
       );
     }
   }
