@@ -1,8 +1,8 @@
 name: Smoke test (deployed site)
 
 # Runs the @smoke end-to-end tests against a deployed URL:
-# - automatically, when a deployment reports success to GitHub (Cloudflare Pages does this for
-#   repos connected through its GitHub app: preview deploys for PRs, production for main);
+# - automatically, if the host reports deployments to GitHub ("Deployments" on the repo page).
+#   Cloudflare Pages may report check runs only, in which case run it by hand;
 # - or by hand: Actions → "Smoke test (deployed site)" → Run workflow, and paste the URL.
 on:
   deployment_status:

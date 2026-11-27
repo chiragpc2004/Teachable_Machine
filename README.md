@@ -4,7 +4,9 @@ Train an image classifier in your browser. You don't write code, and your images
 
 Inspired by [Google's Teachable Machine](https://teachablemachine.withgoogle.com/). This is an independent project.
 
-> **Status: Phase 9 (deployment).** The full journey works, is tested in five browser projects, and runs under a strict Content Security Policy. It's ready to deploy to Cloudflare Pages: see [docs/DEPLOY.md](docs/DEPLOY.md). Product spec: [docs/PRODUCT.md](docs/PRODUCT.md).
+**Live: https://eyebright.pages.dev/**
+
+> **Status: live (v0.1.0), pending real-device checks.** The full journey works, is tested in five browser projects, and runs under a strict Content Security Policy. Hosting: Cloudflare Pages, see [docs/DEPLOY.md](docs/DEPLOY.md). Product spec: [docs/PRODUCT.md](docs/PRODUCT.md).
 
 ## How it works
 

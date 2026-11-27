@@ -22,7 +22,7 @@ How to keep the app healthy after launch. Most of this takes a few minutes a wee
 ## Releasing
 
 1. Merge to `main`. Cloudflare deploys production automatically ([DEPLOY.md](DEPLOY.md)).
-2. Run the smoke tests against production. Actions → **Smoke test (deployed site)**, if they didn't run automatically.
+2. Run the smoke tests against production: Actions → **Smoke test (deployed site)** → Run workflow with `https://eyebright.pages.dev`, unless they ran automatically.
 3. For user-visible changes, bump `version` in `frontend/package.json`:
    - patch for fixes
    - minor for features
