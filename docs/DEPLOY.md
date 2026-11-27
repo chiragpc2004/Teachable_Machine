@@ -25,7 +25,7 @@ GitHub Actions still runs all the tests (CI). Cloudflare only builds and hosts.
 
    | Setting                | Value           |
    | ---------------------- | --------------- |
-   | Project name           | see note below  |
+   | Project name           | `eyebright`     |
    | Production branch      | `main`          |
    | Framework preset       | None            |
    | Build command          | `npm run build` |
@@ -36,7 +36,7 @@ GitHub Actions still runs all the tests (CI). Cloudflare only builds and hosts.
 
 5. **Save and Deploy.** The first build takes about a minute.
 
-**Project name:** it becomes the address (`<name>.pages.dev`) and **can't be changed later**. A new project would be needed for a new name. Pick the final product name if you have it. A neutral placeholder is fine for testing, and a custom domain can always be added on top.
+**Project name:** it becomes the address, `eyebright.pages.dev`, and **can't be changed later**. A custom domain can always be added on top. If Cloudflare says the name is taken (it was free on 2026-11-27), use `eyebright-app`.
 
 ## 3. Check the deployment
 
@@ -78,4 +78,4 @@ Before calling a deployment "public":
 - [ ] CI green on `main`
 - [ ] Smoke tests pass against the production URL
 - [ ] Real-device checks done ([QA.md](QA.md) release gate)
-- [ ] Product name decided (`frontend/src/app/brand.js`, `index.html` title, Pages project name or custom domain)
+- [x] Product name decided: Eyebright

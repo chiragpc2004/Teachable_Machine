@@ -12,4 +12,4 @@ export const safeFilename = (name) =>
     .trim()
     .replace(/[^\w.-]+/g, '-')
     .replace(/^-+|-+$/g, '')
-    .toLowerCase() || 'teachable';
+    .toLowerCase() || 'eyebright';

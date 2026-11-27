@@ -41,8 +41,8 @@ export async function waitForSaved(page, { samples, model = false }) {
                 const db = open.result;
                 if (!db.objectStoreNames.contains('keyval')) return resolve(null);
                 const store = db.transaction('keyval').objectStore('keyval');
-                const project = store.get('teachable:project:v1');
-                const meta = store.get('teachable:model-meta:v1');
+                const project = store.get('eyebright:project:v1');
+                const meta = store.get('eyebright:model-meta:v1');
                 store.transaction.oncomplete = () =>
                   resolve({
                     samples: project.result?.classes.reduce((n, c) => n + c.samples.length, 0) ?? 0,

@@ -9,7 +9,7 @@ import { DEFAULT_CONFIDENCE_THRESHOLD, FEATURE_EXTRACTOR_ID, IMAGE_SIZE } from '
 export function buildCombinedModel(extractorModel, head) {
   let x = extractorModel.outputs[0];
   for (const layer of head.layers) x = layer.apply(x);
-  return tf.model({ inputs: extractorModel.inputs, outputs: x, name: 'teachable_classifier' });
+  return tf.model({ inputs: extractorModel.inputs, outputs: x, name: 'eyebright_classifier' });
 }
 
 async function captureArtifacts(model) {
@@ -26,7 +26,7 @@ async function captureArtifacts(model) {
   return { artifacts, weights: new Uint8Array(weights) };
 }
 
-const usageGuide = (labels) => `# Your Teachable model
+const usageGuide = (labels) => `# Your Eyebright model
 
 Classes: ${labels.map((l) => `"${l}"`).join(', ')}
 
@@ -87,7 +87,7 @@ export async function exportModelZip({
     weightsManifest: [{ paths: ['weights.bin'], weights: artifacts.weightSpecs }],
   };
   const metadata = {
-    format: 'teachable-model',
+    format: 'eyebright-model',
     version: 1,
     labels,
     featureExtractor: FEATURE_EXTRACTOR_ID,

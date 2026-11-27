@@ -1,6 +1,6 @@
 # Model
 
-How Teachable turns your images into a classifier, and how well that works.
+How Eyebright turns your images into a classifier, and how well that works.
 
 ## Pipeline
 
@@ -32,13 +32,13 @@ Measured with `npm run validate-model -- <dir> ...` on TensorFlow's public [flow
 
 Measured 2026-11-27, @tensorflow/tfjs 4.22.
 
-**Reading these numbers:** flowers are a fairly hard test. The photos are cluttered, and roses and tulips look alike. Typical Teachable-style tasks (your own objects or gestures on a consistent background, from a webcam) are usually easier. Accuracy depends mostly on how varied and representative your samples are.
+**Reading these numbers:** flowers are a fairly hard test. The photos are cluttered, and roses and tulips look alike. Typical tasks for a tool like this (your own objects or gestures on a consistent background, from a webcam) are usually easier. Accuracy depends mostly on how varied and representative your samples are.
 
 **Timing:** embedding took about 90 ms per image on the Node CPU backend (Apple Silicon), and head training took about 1–1.5 s. Browser timings are in [QA.md](QA.md#measured-timings).
 
 ## Exported model
 
-**Export model** downloads `teachable-model.zip` with these files:
+**Export model** downloads `eyebright-model.zip` with these files:
 
 - `model.json` + `weights.bin`: one self-contained TF.js layers model (MobileNet without its ImageNet classifier, plus the trained head). Input is `[1, 224, 224, 3]` scaled to [-1, 1]; output is one probability per class.
 - `metadata.json`: labels in output order, preprocessing, and the confidence threshold.

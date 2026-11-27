@@ -42,21 +42,21 @@ describe('project file', () => {
   });
 
   it('rejects files that are not projects', () => {
-    expect(() => importProjectFile(new Uint8Array([1, 2, 3]), 256)).toThrow(/isn't a Teachable project/);
+    expect(() => importProjectFile(new Uint8Array([1, 2, 3]), 256)).toThrow(/isn't a Eyebright project/);
     const zip = zipSync({ 'project.json': strToU8('{"format":"other"}') });
-    expect(() => importProjectFile(zip, 256)).toThrow(/isn't a Teachable project/);
+    expect(() => importProjectFile(zip, 256)).toThrow(/isn't a Eyebright project/);
   });
 
   it('rejects projects from a different image model', () => {
     const zip = zipSync({
       'project.json': strToU8(
-        JSON.stringify({ format: 'teachable-project', version: 1, featureExtractor: 'x' }),
+        JSON.stringify({ format: 'eyebright-project', version: 1, featureExtractor: 'x' }),
       ),
     });
     expect(() => importProjectFile(zip, 256)).toThrow(/different image model/);
   });
 
-  const header = { format: 'teachable-project', version: 1, featureExtractor: FEATURE_EXTRACTOR_ID };
+  const header = { format: 'eyebright-project', version: 1, featureExtractor: FEATURE_EXTRACTOR_ID };
 
   it('reports damaged project files clearly instead of crashing', () => {
     const cases = [

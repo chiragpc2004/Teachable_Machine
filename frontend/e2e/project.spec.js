@@ -90,7 +90,7 @@ test('exports a usable model zip', { tag: '@smoke' }, async ({ page }, testInfo)
     page.waitForEvent('download'),
     page.getByRole('button', { name: 'Download model' }).click(),
   ]);
-  expect(download.suggestedFilename()).toBe('teachable-model.zip');
+  expect(download.suggestedFilename()).toBe('eyebright-model.zip');
   const path = testInfo.outputPath('model.zip');
   await download.saveAs(path);
   const zip = unzipSync(new Uint8Array(await readFile(path)));

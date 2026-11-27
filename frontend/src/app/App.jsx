@@ -212,7 +212,7 @@ export default function App() {
 
   async function exportProject() {
     try {
-      downloadBytes(await exportProjectFile(project.classes), 'teachable-project.zip');
+      downloadBytes(await exportProjectFile(project.classes), 'eyebright-project.zip');
     } catch (err) {
       showError(err);
     }
@@ -242,7 +242,7 @@ export default function App() {
   async function exportModel() {
     setExporting(true);
     try {
-      downloadBytes(await engine.exportModel(), 'teachable-model.zip');
+      downloadBytes(await engine.exportModel(), 'eyebright-model.zip');
     } catch (err) {
       showError(err);
     } finally {

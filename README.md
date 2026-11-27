@@ -1,4 +1,4 @@
-# Teachable
+# Eyebright
 
 Train an image classifier in your browser. You don't write code, and your images never leave your device.
 
