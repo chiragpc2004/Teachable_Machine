@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import { reportProblemUrl } from '../app/brand.js';
 import { clearAll } from '../project/storage.js';
 
 export default class ErrorBoundary extends Component {
@@ -35,6 +36,13 @@ export default class ErrorBoundary extends Component {
               Start over
             </button>
           </div>
+          <p>
+            Still broken after reloading?{' '}
+            <a href={reportProblemUrl(this.state.error)} target="_blank" rel="noreferrer">
+              Report this problem
+            </a>{' '}
+            (opens GitHub; the error message is filled in for you to check before sending).
+          </p>
         </div>
       </div>
     );

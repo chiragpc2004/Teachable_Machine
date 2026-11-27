@@ -39,3 +39,12 @@ test('makes no requests to other sites', { tag: '@smoke' }, async ({ page, baseU
   await expect(page.getByText(/Loaded 3 kinds of flowers/)).toBeVisible({ timeout: 60_000 });
   expect(external).toEqual([]);
 });
+
+test('footer shows the version and a pre-filled problem report link', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('.footer')).toContainText(/Version \d+\.\d+\.\d+/);
+  const href = await page.getByRole('link', { name: 'Report a problem' }).getAttribute('href');
+  const url = new URL(href);
+  expect(url.hostname).toBe('github.com');
+  expect(url.searchParams.get('template')).toBe('bug.yml');
+});

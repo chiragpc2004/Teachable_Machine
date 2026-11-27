@@ -12,7 +12,7 @@ import TestPanel from '../ui/TestPanel.jsx';
 import TrainPanel from '../ui/TrainPanel.jsx';
 import { SAMPLE_CREDITS_URL, loadSampleProject, loadSampleTestImages } from './sampleProject.js';
 import { useEngine } from './useEngine.js';
-import { APP_NAME } from './brand.js';
+import { APP_NAME, APP_VERSION, reportProblemUrl } from './brand.js';
 
 export const MAX_SAMPLES_PER_CLASS = 300;
 
@@ -439,6 +439,12 @@ export default function App() {
           Runs entirely on your device; nothing is uploaded. Your project is saved in this browser.{' '}
           <a href={SAMPLE_CREDITS_URL} target="_blank" rel="noreferrer">
             Sample photo credits
+          </a>
+        </p>
+        <p>
+          Version {APP_VERSION}.{' '}
+          <a href={reportProblemUrl()} target="_blank" rel="noreferrer">
+            Report a problem
           </a>
         </p>
       </footer>

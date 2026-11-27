@@ -60,6 +60,8 @@ docs/PRODUCT.md          # v1 product spec
 docs/QA.md               # Test inventory, timings, manual device checklist, release gate
 docs/SECURITY.md         # Privacy, security headers, input limits, dependencies
 docs/DEPLOY.md           # Cloudflare Pages setup, previews, rollback, custom domain
+docs/MAINTENANCE.md      # Weekly routine, releases, monitoring, backlog
+CHANGELOG.md             # Notable changes per version
 ```
 
 ## History

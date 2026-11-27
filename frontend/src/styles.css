@@ -709,6 +709,9 @@ progress {
   color: var(--muted);
   font-size: var(--text-xs);
 }
+.footer p + p {
+  margin-top: 0.4rem;
+}
 
 /* Grids that hold cards must be allowed to shrink below their content's minimum width,
    otherwise one wide child (a long name, a row of buttons) widens the whole column. */
