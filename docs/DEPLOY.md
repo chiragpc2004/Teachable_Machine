@@ -1,22 +1,25 @@
-# Deployment (Cloudflare Pages)
+# Deployment (Cloudflare)
 
-The app is static files: `npm run build` puts everything in `frontend/dist/`. Cloudflare Pages builds it from GitHub on every push and serves it from their global network over HTTPS. **No server, database or secrets are involved.**
+**Live: https://eyebright.chiragpc2004.workers.dev/** (first deployed 2026-11-27).
 
-| Branch / event       | What Cloudflare does                                                |
-| -------------------- | ------------------------------------------------------------------- |
-| Push to `main`       | Builds and publishes **production** (`https://<project>.pages.dev`) |
-| Any other push or PR | Builds a **preview** at its own URL and comments the link on the PR |
+The app is static files: `npm run build` puts everything in `frontend/dist/`. Cloudflare builds it from GitHub on every push to `main` and serves it from their global network over HTTPS. **No server, database or secrets are involved.** GitHub Actions still runs all the tests (CI); Cloudflare only builds and hosts.
 
-GitHub Actions still runs all the tests (CI). Cloudflare only builds and hosts.
+## Current setup
 
-## 1. Before connecting: merge the stacked PRs
+| Setting            | Value                                                                                                                                                                               |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Cloudflare product | **Workers** (static assets), connected to GitHub with Workers Builds. The newer dashboard flow creates a Worker rather than a Pages project; for a static site they behave the same |
+| Name / address     | `eyebright` → `eyebright.chiragpc2004.workers.dev`                                                                                                                                  |
+| Root directory     | `frontend`. If this is left empty, the build fails with `Could not read package.json`                                                                                               |
+| Build command      | `npm run build`                                                                                                                                                                     |
+| Output             | `dist`                                                                                                                                                                              |
+| Production branch  | `main`                                                                                                                                                                              |
 
-`main` still contains the old FastAPI version, and Cloudflare publishes `main` as production the moment you connect. Merge first:
+**Verified on 2026-11-27:** the security and cache headers from `_headers` are served as written. The smoke tests passed against the live URL: 28 locally (chromium, webkit, mobile-android, mobile-iphone) and 34 on GitHub Actions including Firefox.
 
-1. Merge **#1**, then delete its branch when GitHub offers. The next PR then retargets to `main` automatically.
-2. Repeat for #2, #3, #4, #5 and #6, each after its CI is green.
+The steps below were written for Cloudflare **Pages**. They still work if the project ever has to be recreated; the Workers flow asks for the same settings.
 
-## 2. Connect the repository (one time, about 5 minutes)
+## Recreating from scratch (one time, about 5 minutes)
 
 1. Sign in at [dash.cloudflare.com](https://dash.cloudflare.com) (a free account is enough).
 2. **Workers & Pages → Create → Pages → Connect to Git**.
@@ -38,21 +41,21 @@ GitHub Actions still runs all the tests (CI). Cloudflare only builds and hosts.
 
 **Project name:** it becomes the address, `eyebright.pages.dev`, and **can't be changed later**. A custom domain can always be added on top. If Cloudflare says the name is taken (it was free on 2026-11-27), use `eyebright-app`.
 
-## 3. Check the deployment
+## Checking a deployment
 
 1. Open the URL. The intro should show, and **Try it with flowers** should become active within a few seconds.
 2. Run the smoke tests against it. This is the sample journey, model export, reload, the security headers, the "no other sites" check and an accessibility scan, in all five browser projects.
    - **On GitHub:** Actions → **Smoke test (deployed site)** → **Run workflow**, then paste the URL. If Cloudflare reports its deployments to GitHub (the "Deployments" list on the repo page), this workflow also runs automatically after each successful deployment.
-   - **Locally:** `cd frontend && SMOKE_URL=https://<project>.pages.dev npm run test:smoke -- --project=chromium --project=webkit`
+   - **Locally:** `cd frontend && SMOKE_URL=https://eyebright.chiragpc2004.workers.dev npm run test:smoke -- --project=chromium --project=webkit`
 3. Do the real-device checks in [QA.md](QA.md) using this URL. Those results are the release gate.
 
 ## Preview deployments
 
-Every PR gets its own URL, which Cloudflare comments on the PR. Every branch also has a stable alias: `https://<branch>.<project>.pages.dev`. Use these to try changes on a phone before merging. Previews are public but unlisted. If that matters, **Settings → Access policy** can restrict them to your email (Cloudflare Access, free for small teams).
+**Pages** gives every PR its own URL and comments it on the PR. **Workers** can do the same for non-production branches if "builds for non-production branches" is turned on under the Worker's **Settings → Build**. Check it there; it wasn't verified when the site was set up. On Pages, every branch also has a stable alias: `https://<branch>.<project>.pages.dev`. Use these to try changes on a phone before merging. Previews are public but unlisted. If that matters, **Settings → Access policy** can restrict them to your email (Cloudflare Access, free for small teams).
 
 ## Rolling back
 
-**Workers & Pages → project → Deployments → (an earlier production deployment) → ⋯ → Rollback to this deployment.** It takes effect in seconds and doesn't touch git. Afterwards, fix forward: revert the bad commit in a PR, and the next merge to `main` deploys normally.
+**Workers & Pages → eyebright → Deployments**, then roll back to an earlier version. On Pages the menu item is **⋯ → Rollback to this deployment**. It takes effect in seconds and doesn't touch git. Afterwards, fix forward: revert the bad commit in a PR, and the next merge to `main` deploys normally.
 
 ## Custom domain (optional)
 

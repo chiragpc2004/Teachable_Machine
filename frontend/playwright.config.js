@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 const PORT = 4173;
 // Set SMOKE_URL to run the tests against a deployed site instead of a local build, e.g.
-// SMOKE_URL=https://eyebright.pages.dev npm run test:smoke (see docs/DEPLOY.md).
+// SMOKE_URL=https://eyebright.chiragpc2004.workers.dev npm run test:smoke (see docs/DEPLOY.md).
 const SMOKE_URL = process.env.SMOKE_URL?.replace(/\/$/, '');
 
 export default defineConfig({
