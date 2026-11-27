@@ -4,7 +4,7 @@ import { expect, test } from './test.js';
 // also fails on any Content Security Policy violation (see ./test.js), so these checks only
 // cover that the headers are actually sent.
 
-test('serves the security headers', async ({ request }) => {
+test('serves the security headers', { tag: '@smoke' }, async ({ request }) => {
   const res = await request.get('/');
   const h = res.headers();
   expect(h['content-security-policy']).toContain("script-src 'self'");
@@ -15,19 +15,23 @@ test('serves the security headers', async ({ request }) => {
   expect(h['permissions-policy']).toContain('camera=()');
 });
 
-test('caches hashed assets forever and the page itself not at all', async ({ page, request }) => {
-  await page.goto('/');
-  const script = await page.locator('script[type=module]').getAttribute('src');
-  expect((await request.get(script)).headers()['cache-control']).toContain('immutable');
-  expect((await request.get('/')).headers()['cache-control'] ?? '').not.toContain('immutable');
-});
+test(
+  'caches hashed assets forever and the page itself not at all',
+  { tag: '@smoke' },
+  async ({ page, request }) => {
+    await page.goto('/');
+    const script = await page.locator('script[type=module]').getAttribute('src');
+    expect((await request.get(script)).headers()['cache-control']).toContain('immutable');
+    expect((await request.get('/')).headers()['cache-control'] ?? '').not.toContain('immutable');
+  },
+);
 
-test('makes no requests to other sites', async ({ page }) => {
+test('makes no requests to other sites', { tag: '@smoke' }, async ({ page, baseURL }) => {
+  const own = new URL(baseURL).hostname;
   const external = [];
   page.on('request', (req) => {
-    const url = new URL(req.url());
-    if (!['localhost', '127.0.0.1'].includes(url.hostname) && !/^(blob|data):/.test(req.url()))
-      external.push(req.url());
+    if (/^(blob|data):/.test(req.url())) return;
+    if (new URL(req.url()).hostname !== own) external.push(req.url());
   });
   await page.goto('/');
   await expect(page.locator('.page')).toHaveAttribute('data-state', 'ready', { timeout: 60_000 });

@@ -22,3 +22,36 @@ export async function trainModel(page) {
 }
 
 export const testInput = (page) => page.locator('#test-title').locator('..').locator('input[type=file]');
+
+/**
+ * Waits until auto-save has written the project (with `samples` images in total) and, if
+ * `model` is set, the trained model to IndexedDB. Saving is debounced and asynchronous, so a
+ * fixed wait is flaky on a busy machine.
+ */
+export async function waitForSaved(page, { samples, model = false }) {
+  await expect
+    .poll(
+      () =>
+        page.evaluate(
+          () =>
+            new Promise((resolve) => {
+              const open = indexedDB.open('keyval-store');
+              open.onerror = () => resolve(null);
+              open.onsuccess = () => {
+                const db = open.result;
+                if (!db.objectStoreNames.contains('keyval')) return resolve(null);
+                const store = db.transaction('keyval').objectStore('keyval');
+                const project = store.get('teachable:project:v1');
+                const meta = store.get('teachable:model-meta:v1');
+                store.transaction.oncomplete = () =>
+                  resolve({
+                    samples: project.result?.classes.reduce((n, c) => n + c.samples.length, 0) ?? 0,
+                    model: Boolean(meta.result),
+                  });
+              };
+            }),
+        ),
+      { timeout: 15_000 },
+    )
+    .toEqual(model ? { samples, model: true } : expect.objectContaining({ samples }));
+}

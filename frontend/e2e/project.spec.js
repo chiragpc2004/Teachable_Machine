@@ -2,13 +2,13 @@ import { expect, test } from './test.js';
 import { strFromU8, unzipSync } from 'fflate';
 import { readFile } from 'node:fs/promises';
 import { datasetZip, images } from './fixtures.js';
-import { addImages, classCard, openApp, testInput, trainModel } from './helpers.js';
+import { addImages, classCard, openApp, testInput, trainModel, waitForSaved } from './helpers.js';
 
 test.beforeEach(({ page }) => openApp(page));
 
 const zipInput = (page) => page.locator('.import input[accept*=".zip"]');
 
-test('sample project: load, train, and classify held-out flowers', async ({ page }) => {
+test('sample project: load, train, and classify held-out flowers', { tag: '@smoke' }, async ({ page }) => {
   await page.getByRole('button', { name: /Try it with flowers/ }).click();
   await expect(page.getByText(/Loaded 3 kinds of flowers/)).toBeVisible({ timeout: 60_000 });
   await expect(page.getByLabel('Class name')).toHaveCount(3);
@@ -61,13 +61,13 @@ test('explains a zip without class folders', async ({ page }) => {
   await expect(page.getByLabel('Class name').nth(0)).toHaveValue('flat', { timeout: 30_000 });
 });
 
-test('restores the project and trained model after a reload', async ({ page }) => {
+test('restores the project and trained model after a reload', { tag: '@smoke' }, async ({ page }) => {
   await page.getByLabel('Class name').nth(0).fill('Red');
   await page.getByLabel('Class name').nth(1).fill('Blue');
   await addImages(page, 0, images('red', 6));
   await addImages(page, 1, images('blue', 6));
   await trainModel(page);
-  await page.waitForTimeout(800); // auto-save is debounced
+  await waitForSaved(page, { samples: 12, model: true });
 
   await page.reload();
   await expect(page.locator('.page')).toHaveAttribute('data-state', 'ready', { timeout: 60_000 });
@@ -76,10 +76,10 @@ test('restores the project and trained model after a reload', async ({ page }) =
   await expect(page.getByText('Model trained')).toBeVisible();
 
   await testInput(page).setInputFiles(images('blue', 1, 50));
-  await expect(page.locator('.result__headline').first()).toContainText('Blue');
+  await expect(page.locator('.result__headline').first()).toContainText('Blue', { timeout: 30_000 });
 });
 
-test('exports a usable model zip', async ({ page }, testInfo) => {
+test('exports a usable model zip', { tag: '@smoke' }, async ({ page }, testInfo) => {
   await page.getByLabel('Class name').nth(0).fill('Red');
   await page.getByLabel('Class name').nth(1).fill('Blue');
   await addImages(page, 0, images('red', 6));

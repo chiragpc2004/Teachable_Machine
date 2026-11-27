@@ -16,7 +16,8 @@
     "fetch-model": "node scripts/fetch-model.mjs",
     "validate-model": "node scripts/validate-model.mjs",
     "perf": "PERF=1 playwright test e2e/perf --workers=1",
-    "check-bundle": "node scripts/check-bundle.mjs"
+    "check-bundle": "node scripts/check-bundle.mjs",
+    "test:smoke": "playwright test --grep @smoke"
   },
   "dependencies": {
     "@fontsource-variable/atkinson-hyperlegible-next": "^5.3.0",

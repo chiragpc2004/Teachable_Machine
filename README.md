@@ -4,7 +4,7 @@ Train an image classifier in your browser. You don't write code, and your images
 
 Inspired by [Google's Teachable Machine](https://teachablemachine.withgoogle.com/). This is an independent project.
 
-> **Status: Phase 8 (security, privacy, performance).** The full journey works, is tested in five browser projects, and runs under a strict Content Security Policy. Next: deployment to Cloudflare Pages. See [docs/PRODUCT.md](docs/PRODUCT.md).
+> **Status: Phase 9 (deployment).** The full journey works, is tested in five browser projects, and runs under a strict Content Security Policy. It's ready to deploy to Cloudflare Pages: see [docs/DEPLOY.md](docs/DEPLOY.md). Product spec: [docs/PRODUCT.md](docs/PRODUCT.md).
 
 ## How it works
 
@@ -32,6 +32,7 @@ npm run dev          # http://localhost:5173
 | `npm test`                                      | Unit tests (Vitest), including loading the real MobileNet weights                                                                                                                                                                         |
 | `npm run test:e2e`                              | Browser tests (Playwright: Chromium, Firefox, WebKit, emulated Android + iPhone) against the production build, including WCAG 2.2 AA checks (axe-core) and a 360 px layout check. Run `npx playwright install chromium webkit` once first |
 | `npm run check-bundle`                          | After a build: checks download sizes against the budget (first load ≤ 100 KB, all JS ≤ 380 KB, gzipped)                                                                                                                                   |
+| `npm run test:smoke`                            | The `@smoke` subset of E2E tests. With `SMOKE_URL=https://…` it tests a deployed site instead of a local build                                                                                                                            |
 | `npm run perf`                                  | Timings of the sample journey in each browser project                                                                                                                                                                                     |
 | `npm run lint` / `npm run format`               | ESLint / Prettier                                                                                                                                                                                                                         |
 | `npm run fetch-model`                           | Re-download the MobileNet weights into `public/models/`                                                                                                                                                                                   |
@@ -58,6 +59,7 @@ docs/MODEL.md            # Pipeline, accuracy numbers, export format, limitation
 docs/PRODUCT.md          # v1 product spec
 docs/QA.md               # Test inventory, timings, manual device checklist, release gate
 docs/SECURITY.md         # Privacy, security headers, input limits, dependencies
+docs/DEPLOY.md           # Cloudflare Pages setup, previews, rollback, custom domain
 ```
 
 ## History
