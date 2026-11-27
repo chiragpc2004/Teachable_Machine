@@ -8,12 +8,40 @@
  */
 
 export const MAX_CLASSES = 10;
+
+/**
+ * One colour per class, kept for the class's lifetime (so deleting a class doesn't recolour
+ * the others). All are ≥3:1 against white for bars and stripes; they're never used for text.
+ */
+export const CLASS_COLORS = [
+  '#2563EB',
+  '#D9480F',
+  '#0F8A5F',
+  '#7C3AED',
+  '#C2185B',
+  '#0E7490',
+  '#B7791F',
+  '#5F7F12',
+  '#8D5A2B',
+  '#52606D',
+];
+
+export function nextColor(classes) {
+  const used = new Set(classes.map((c) => c.color));
+  const free = CLASS_COLORS.findIndex((_, i) => !used.has(i));
+  return free === -1 ? classes.length % CLASS_COLORS.length : free;
+}
 export const MAX_CLASS_NAME = 40;
 
 export const createId = () =>
   globalThis.crypto?.randomUUID?.() ?? `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
 
-const newClass = (name, samples = []) => ({ id: createId(), name, samples });
+const newClass = (name, classes, samples = []) => ({
+  id: createId(),
+  name,
+  color: nextColor(classes),
+  samples,
+});
 
 export function defaultClassName(classes) {
   const taken = new Set(classes.map((c) => c.name));
@@ -23,7 +51,8 @@ export function defaultClassName(classes) {
 }
 
 export function initialProject() {
-  return { classes: [newClass('Class 1'), newClass('Class 2')], revision: 0, source: null };
+  const first = newClass('Class 1', []);
+  return { classes: [first, newClass('Class 2', [first])], revision: 0, source: null };
 }
 
 function mapClass(state, id, fn) {
@@ -35,7 +64,9 @@ export function projectReducer(state, action) {
   switch (action.type) {
     case 'addClass':
       if (state.classes.length >= MAX_CLASSES) return state;
-      return next({ classes: [...state.classes, newClass(action.name ?? defaultClassName(state.classes))] });
+      return next({
+        classes: [...state.classes, newClass(action.name ?? defaultClassName(state.classes), state.classes)],
+      });
     case 'renameClass':
       return next({
         classes: mapClass(state, action.id, (c) => ({ ...c, name: action.name.slice(0, MAX_CLASS_NAME) })),
@@ -70,18 +101,20 @@ export function projectReducer(state, action) {
             c === existing ? { ...c, samples: [...c.samples, ...incoming.samples] } : c,
           );
         } else if (classes.length < MAX_CLASSES) {
-          classes = [...classes, newClass(name, incoming.samples)];
+          classes = [...classes, newClass(name, classes, incoming.samples)];
         }
       }
-      while (classes.length < 2) classes = [...classes, newClass(defaultClassName(classes))];
+      while (classes.length < 2) classes = [...classes, newClass(defaultClassName(classes), classes)];
       return next({ classes, source: action.source ?? state.source });
     }
-    case 'load':
-      return {
-        classes: action.project.classes,
-        revision: action.project.revision,
-        source: action.project.source ?? null,
-      };
+    case 'load': {
+      // Projects saved before colours existed get them assigned now.
+      const classes = [];
+      for (const c of action.project.classes) {
+        classes.push(Number.isInteger(c.color) ? c : { ...c, color: nextColor(classes) });
+      }
+      return { classes, revision: action.project.revision, source: action.project.source ?? null };
+    }
     case 'reset':
       return { ...initialProject(), revision: state.revision + 1 };
     default:

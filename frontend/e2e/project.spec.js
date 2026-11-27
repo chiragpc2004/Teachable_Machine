@@ -9,13 +9,13 @@ test.beforeEach(({ page }) => openApp(page));
 const zipInput = (page) => page.locator('.import input[accept*=".zip"]');
 
 test('sample project: load, train, and classify held-out flowers', async ({ page }) => {
-  await page.getByRole('button', { name: /Try the sample project/ }).click();
-  await expect(page.getByText(/Sample project loaded/)).toBeVisible({ timeout: 60_000 });
+  await page.getByRole('button', { name: /Try it with flowers/ }).click();
+  await expect(page.getByText(/Loaded 3 kinds of flowers/)).toBeVisible({ timeout: 60_000 });
   await expect(page.getByLabel('Class name')).toHaveCount(3);
-  for (const n of [0, 1, 2]) await expect(classCard(page, n).locator('.count')).toHaveText('20 samples');
+  for (const n of [0, 1, 2]) await expect(classCard(page, n).locator('.count')).toHaveText('20 images');
 
   await trainModel(page);
-  await page.getByRole('button', { name: 'Try sample test images' }).click();
+  await page.getByRole('button', { name: 'Use sample test photos' }).click();
   const results = page.locator('.result');
   await expect(results).toHaveCount(9, { timeout: 30_000 });
 
@@ -46,7 +46,7 @@ test('imports a dataset zip with a wrapper folder', async ({ page }) => {
   await expect(page.getByText(/Added 12 images\. Classes: blue, red\./)).toBeVisible({ timeout: 30_000 });
   await expect(page.getByLabel('Class name')).toHaveCount(2);
   await expect(page.getByLabel('Class name').nth(0)).toHaveValue('blue');
-  await expect(classCard(page, 1).locator('.count')).toHaveText('6 samples');
+  await expect(classCard(page, 1).locator('.count')).toHaveText('6 images');
 });
 
 test('explains a zip without class folders', async ({ page }) => {
@@ -70,10 +70,10 @@ test('restores the project and trained model after a reload', async ({ page }) =
   await page.waitForTimeout(800); // auto-save is debounced
 
   await page.reload();
-  await expect(page.locator('.model-status')).toHaveText(/Image model ready/, { timeout: 60_000 });
+  await expect(page.locator('.page')).toHaveAttribute('data-state', 'ready', { timeout: 60_000 });
   await expect(page.getByLabel('Class name').nth(0)).toHaveValue('Red');
-  await expect(classCard(page, 1).locator('.count')).toHaveText('6 samples');
-  await expect(page.getByText(/^Trained\./)).toBeVisible();
+  await expect(classCard(page, 1).locator('.count')).toHaveText('6 images');
+  await expect(page.getByText('Model trained')).toBeVisible();
 
   await testInput(page).setInputFiles(images('blue', 1, 50));
   await expect(page.locator('.result__headline').first()).toContainText('Blue');
@@ -88,7 +88,7 @@ test('exports a usable model zip', async ({ page }, testInfo) => {
 
   const [download] = await Promise.all([
     page.waitForEvent('download'),
-    page.getByRole('button', { name: 'Export model (.zip)' }).click(),
+    page.getByRole('button', { name: 'Download model' }).click(),
   ]);
   expect(download.suggestedFilename()).toBe('teachable-model.zip');
   const path = testInfo.outputPath('model.zip');
@@ -107,18 +107,18 @@ test('exports a project and opens it again', async ({ page }, testInfo) => {
 
   const [download] = await Promise.all([
     page.waitForEvent('download'),
-    page.getByRole('button', { name: 'Export project' }).click(),
+    page.getByRole('button', { name: 'Save project file' }).click(),
   ]);
   const path = testInfo.outputPath('project.zip');
   await download.saveAs(path);
 
   page.once('dialog', (d) => d.accept());
   await page.getByRole('button', { name: 'New project' }).click();
-  await expect(classCard(page, 0).locator('.count')).toHaveText('0 samples');
+  await expect(classCard(page, 0).locator('.count')).toHaveText('0 images');
 
   await zipInput(page).setInputFiles(path);
   await expect(page.getByText(/Opened project with 2 classes/)).toBeVisible({ timeout: 30_000 });
   await expect(page.getByLabel('Class name').nth(0)).toHaveValue('Red');
-  await expect(classCard(page, 1).locator('.count')).toHaveText('7 samples');
+  await expect(classCard(page, 1).locator('.count')).toHaveText('7 images');
   await trainModel(page);
 });

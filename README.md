@@ -4,7 +4,7 @@ Train an image classifier in your browser. You don't write code, and your images
 
 Inspired by [Google's Teachable Machine](https://teachablemachine.withgoogle.com/). This is an independent project.
 
-> **Status: Phase 5 (core app).** The full journey works: add images (picker, drag-and-drop, folders, zips), train, test images in batches, auto-save in the browser, and export the model or the project. The visual design is still plain; polish is Phase 6. See [docs/PRODUCT.md](docs/PRODUCT.md).
+> **Status: Phase 6 (UI polish).** The full journey works and has its final visual design: add images (picker, drag-and-drop, folders, zips), train, test images in batches, auto-save, and download the model or a project file. Next: device testing, then deployment. See [docs/PRODUCT.md](docs/PRODUCT.md).
 
 ## How it works
 
@@ -30,7 +30,7 @@ npm run dev          # http://localhost:5173
 | `npm run build` | Production build into `frontend/dist/` (static files only) |
 | `npm run preview` | Serve the production build locally |
 | `npm test` | Unit tests (Vitest), including loading the real MobileNet weights |
-| `npm run test:e2e` | Browser tests (Playwright, Chromium + WebKit) against the production build. Run `npx playwright install chromium webkit` once first |
+| `npm run test:e2e` | Browser tests (Playwright, Chromium + WebKit) against the production build, including WCAG 2.2 AA checks (axe-core) and a 360 px layout check. Run `npx playwright install chromium webkit` once first |
 | `npm run lint` / `npm run format` | ESLint / Prettier |
 | `npm run fetch-model` | Re-download the MobileNet weights into `public/models/` |
 | `npm run validate-model -- <dir>` | Measure accuracy on a folder-per-class image dataset |

@@ -64,6 +64,30 @@ describe('projectReducer', () => {
     expect(s.classes.map((c) => c.name)).toEqual(['cat', 'Class 2']);
   });
 
+  it('gives each class a stable colour that survives deleting others', () => {
+    let s = initialProject();
+    s = projectReducer(s, { type: 'addClass' });
+    expect(s.classes.map((c) => c.color)).toEqual([0, 1, 2]);
+    s = projectReducer(s, { type: 'removeClass', id: s.classes[0].id });
+    expect(s.classes.map((c) => c.color)).toEqual([1, 2]);
+    s = projectReducer(s, { type: 'addClass' });
+    expect(s.classes.map((c) => c.color)).toEqual([1, 2, 0]); // reuses the freed colour
+  });
+
+  it('assigns colours to projects saved without them', () => {
+    const s = projectReducer(initialProject(), {
+      type: 'load',
+      project: {
+        revision: 5,
+        classes: [
+          { id: 'a', name: 'A', samples: [] },
+          { id: 'b', name: 'B', samples: [] },
+        ],
+      },
+    });
+    expect(s.classes.map((c) => c.color)).toEqual([0, 1]);
+  });
+
   it('truncates long names', () => {
     const s = initialProject();
     const r = projectReducer(s, { type: 'renameClass', id: s.classes[0].id, name: 'x'.repeat(100) });

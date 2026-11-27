@@ -15,7 +15,7 @@ test('trains on two classes and predicts new images', async ({ page }) => {
   await addImages(page, 1, images('blue', 8));
   await expect(train).toBeEnabled();
   await trainModel(page);
-  await expect(page.getByText(/Accuracy on held-back samples: \d+%/)).toBeVisible();
+  await expect(page.getByText(/Got \d+% of \d+ held-back images right/)).toBeVisible();
 
   await testInput(page).setInputFiles([...images('red', 1, 100), ...images('blue', 1, 100)]);
   const headlines = page.locator('.result__headline');
@@ -28,8 +28,8 @@ test('trains on two classes and predicts new images', async ({ page }) => {
 
 test('explains what is missing before training is allowed', async ({ page }) => {
   await addImages(page, 0, images('red', 3));
-  await expect(page.getByText('Add samples to at least 2 classes.')).toBeVisible();
-  await expect(page.getByText(/"Class 1" needs at least 5 samples \(has 3\)/)).toBeVisible();
+  await expect(page.getByText('Add images to at least 2 classes.')).toBeVisible();
+  await expect(page.getByText(/"Class 1" needs at least 5 images \(has 3\)/)).toBeVisible();
   await expect(page.getByRole('button', { name: 'Train model' })).toBeDisabled();
 });
 
@@ -37,9 +37,9 @@ test('marks the model stale when classes change after training', async ({ page }
   await addImages(page, 0, images('red', 6));
   await addImages(page, 1, images('blue', 6));
   await trainModel(page);
-  await classCard(page, 0).getByRole('button', { name: 'Clear' }).click();
+  await classCard(page, 0).getByRole('button', { name: 'Remove all images' }).click();
   await expect(page.getByText(/classes changed since training/)).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Export model (.zip)' })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Download model' })).toBeDisabled();
 });
 
 test('accepts images dropped onto a class', async ({ page }) => {
@@ -56,5 +56,5 @@ test('accepts images dropped onto a class', async ({ page }) => {
   const card = classCard(page, 1);
   await card.dispatchEvent('dragenter', { dataTransfer });
   await card.dispatchEvent('drop', { dataTransfer });
-  await expect(card.locator('.count')).toHaveText('5 samples', { timeout: 30_000 });
+  await expect(card.locator('.count')).toHaveText('5 images', { timeout: 30_000 });
 });
