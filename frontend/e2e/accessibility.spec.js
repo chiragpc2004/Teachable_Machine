@@ -14,12 +14,23 @@ const describe = (violations) =>
 
 test.beforeEach(({ page }) => openApp(page));
 
-test('first visit has no WCAG A/AA violations', async ({ page }) => {
+// axe checks the DOM (labels, roles, contrast), which is the same in every engine. In CI,
+// injecting axe crashes headless Firefox on Linux ("Page crashed" inside axe's evaluate), while
+// every other Firefox test on the same pages passes. So scans run in Chromium and WebKit only.
+const skipAxeInFirefox = (browserName) =>
+  test.skip(
+    browserName === 'firefox',
+    'axe injection crashes headless Firefox in CI; DOM is engine-independent',
+  );
+
+test('first visit has no WCAG A/AA violations', async ({ page, browserName }) => {
+  skipAxeInFirefox(browserName);
   const { violations } = await scan(page);
   expect(describe(violations)).toEqual([]);
 });
 
-test('trained and tested state has no WCAG A/AA violations', async ({ page }) => {
+test('trained and tested state has no WCAG A/AA violations', async ({ page, browserName }) => {
+  skipAxeInFirefox(browserName);
   await page.getByRole('button', { name: 'Try it with flowers' }).click();
   await expect(page.getByText(/Loaded 3 kinds of flowers/)).toBeVisible({ timeout: 60_000 });
   await trainModel(page);

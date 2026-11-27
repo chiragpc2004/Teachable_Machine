@@ -23,11 +23,11 @@ All of this lives in `frontend/src/ml/`. Training and inference share one `prepr
 
 Measured with `npm run validate-model -- <dir> ...` on TensorFlow's public [flower_photos](https://www.tensorflow.org/datasets/catalog/tf_flowers) dataset. Each run trains on 30 images per class and scores on 50 **different** images per class that the model never saw. The script runs the same `src/ml` code as the app (Node, TF.js CPU backend).
 
-| Task | Runs | Held-out test accuracy (mean, min–max) |
-|---|---|---|
-| 3 classes: daisy, roses, sunflowers | 5 | **86.8%** (85.3–90.7%) |
-| Same, raw 32×32 pixels instead of embeddings (baseline, roughly the old backend's approach) | 5 | 58.5% (53.3–65.3%) |
-| 5 classes: adds dandelion, tulips | 3 | **80.4%** (80.0–80.8%) |
+| Task                                                                                        | Runs | Held-out test accuracy (mean, min–max) |
+| ------------------------------------------------------------------------------------------- | ---- | -------------------------------------- |
+| 3 classes: daisy, roses, sunflowers                                                         | 5    | **86.8%** (85.3–90.7%)                 |
+| Same, raw 32×32 pixels instead of embeddings (baseline, roughly the old backend's approach) | 5    | 58.5% (53.3–65.3%)                     |
+| 5 classes: adds dandelion, tulips                                                           | 3    | **80.4%** (80.0–80.8%)                 |
 
 Measured 2026-11-27, @tensorflow/tfjs 4.22.
 
@@ -38,6 +38,7 @@ Measured 2026-11-27, @tensorflow/tfjs 4.22.
 ## Exported model
 
 **Export model** downloads `teachable-model.zip` with these files:
+
 - `model.json` + `weights.bin`: one self-contained TF.js layers model (MobileNet without its ImageNet classifier, plus the trained head). Input is `[1, 224, 224, 3]` scaled to [-1, 1]; output is one probability per class.
 - `metadata.json`: labels in output order, preprocessing, and the confidence threshold.
 - `README.md`: a copy-paste HTML/JS example including the preprocessing.

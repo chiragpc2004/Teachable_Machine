@@ -30,7 +30,7 @@ npm run dev          # http://localhost:5173
 | `npm run build` | Production build into `frontend/dist/` (static files only) |
 | `npm run preview` | Serve the production build locally |
 | `npm test` | Unit tests (Vitest), including loading the real MobileNet weights |
-| `npm run test:e2e` | Browser tests (Playwright, Chromium + WebKit) against the production build, including WCAG 2.2 AA checks (axe-core) and a 360 px layout check. Run `npx playwright install chromium webkit` once first |
+| `npm run test:e2e` | Browser tests (Playwright: Chromium, Firefox, WebKit, emulated Android + iPhone) against the production build, including WCAG 2.2 AA checks (axe-core) and a 360 px layout check. Run `npx playwright install chromium webkit` once first |
 | `npm run lint` / `npm run format` | ESLint / Prettier |
 | `npm run fetch-model` | Re-download the MobileNet weights into `public/models/` |
 | `npm run validate-model -- <dir>` | Measure accuracy on a folder-per-class image dataset |
