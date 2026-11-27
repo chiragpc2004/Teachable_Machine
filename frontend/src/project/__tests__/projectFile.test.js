@@ -1,6 +1,13 @@
 import { zipSync, strToU8 } from 'fflate';
 import { describe, expect, it } from 'vitest';
-import { base64ToFloat32, exportProjectFile, float32ToBase64, importProjectFile } from '../projectFile.js';
+import { FEATURE_EXTRACTOR_ID } from '../../ml/config.js';
+import {
+  MAX_PROJECT_ENTRIES,
+  base64ToFloat32,
+  exportProjectFile,
+  float32ToBase64,
+  importProjectFile,
+} from '../projectFile.js';
 
 const emb = (seed) => Float32Array.from({ length: 256 }, (_, i) => Math.sin(seed + i));
 const jpegBlob = (n) => new Blob([new Uint8Array([0xff, 0xd8, n, 0xff, 0xd9])], { type: 'image/jpeg' });
@@ -47,5 +54,27 @@ describe('project file', () => {
       ),
     });
     expect(() => importProjectFile(zip, 256)).toThrow(/different image model/);
+  });
+
+  const header = { format: 'teachable-project', version: 1, featureExtractor: FEATURE_EXTRACTOR_ID };
+
+  it('reports damaged project files clearly instead of crashing', () => {
+    const cases = [
+      strToU8('{not json'),
+      strToU8(JSON.stringify(header)), // no classes
+      strToU8(JSON.stringify({ ...header, classes: [{ name: 'A' }] })), // no samples
+      strToU8(
+        JSON.stringify({ ...header, classes: [{ name: 'A', samples: [{ embedding: '!!', thumb: 'x' }] }] }),
+      ),
+    ];
+    for (const json of cases) {
+      expect(() => importProjectFile(zipSync({ 'project.json': json }), 256)).toThrow(/damaged/);
+    }
+  });
+
+  it('refuses project files with too many entries (zip-bomb guard)', () => {
+    const files = { 'project.json': strToU8(JSON.stringify({ ...header, classes: [] })) };
+    for (let i = 0; i < MAX_PROJECT_ENTRIES; i++) files[`thumbs/${i}.jpg`] = new Uint8Array(1);
+    expect(() => importProjectFile(zipSync(files), 256)).toThrow(/too large/);
   });
 });

@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test.js';
 import { openApp, trainModel } from './helpers.js';
 
 // WCAG 2.2 A + AA rules, checked by axe-core. This catches contrast, labels, roles and

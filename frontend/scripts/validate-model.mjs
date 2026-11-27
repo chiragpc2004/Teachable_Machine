@@ -10,7 +10,7 @@
 //   node scripts/validate-model.mjs <dataset-dir> [--classes a,b,c] [--per-class 30]
 //        [--test-per-class 50] [--runs 5] [--baseline]
 // <dataset-dir> holds one sub-folder of JPEGs per class (e.g. TensorFlow's flower_photos).
-import * as tf from '@tensorflow/tfjs';
+import * as tf from '../src/ml/tf.js';
 import jpeg from 'jpeg-js';
 import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';

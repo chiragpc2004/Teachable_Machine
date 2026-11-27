@@ -1,4 +1,4 @@
-import * as tf from '@tensorflow/tfjs';
+import * as tf from './tf.js';
 import { TRAINING_DEFAULTS } from './config.js';
 import { stratifiedSplit } from './dataset.js';
 

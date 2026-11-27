@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test.js';
 import { images } from './fixtures.js';
 import { addImages, classCard, openApp, trainModel } from './helpers.js';
 

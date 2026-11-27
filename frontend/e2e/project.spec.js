@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test.js';
 import { strFromU8, unzipSync } from 'fflate';
 import { readFile } from 'node:fs/promises';
 import { datasetZip, images } from './fixtures.js';

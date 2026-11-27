@@ -5,13 +5,14 @@ How Teachable turns your images into a classifier, and how well that works.
 ## Pipeline
 
 ```
-image ──► centre-crop to square ──► resize 224×224 ──► scale to [-1, 1]
+image ──► (if large) browser scales short side to 448 px ──► centre-crop to square ──► resize 224×224 ──► scale to [-1, 1]
       ──► MobileNet v1 (α=0.25), cut at conv_pw_13_relu + global average pooling
       ──► 256-number embedding ──► small trainable head ──► probability per class
 ```
 
 - **Feature extractor (frozen):** MobileNet v1, width multiplier 0.25, 224 px input, pretrained on ImageNet. The weights are 1.96 MB and self-hosted in `frontend/public/models/` (see `npm run fetch-model`), so the app has no runtime dependency on a third-party CDN.
-- **Classifier head (trained in the browser):** Dense(64, ReLU) → Dropout(0.3) → Dense(classes, softmax), Adam (lr 0.001), 30 epochs, batch 16.
+- **Large photos:** before ML, the browser's high-quality scaler shrinks photos so the short side is 448 px (`DECODE_SHORT_SIDE` in `src/app/engine.js`). Without it, a 12–48 MP phone photo goes to the GPU at full size (slow, and it can exceed a phone's texture limit), and the bilinear resize straight to 224 px skips most pixels. The flower photos used for accuracy below are smaller than this, so the numbers are unaffected.
+- **Classifier head (trained in the browser):** Dense(64, ReLU) → Dropout(0.3) → Dense(classes, softmax), Adam (lr 0.001), 30 epochs, batch 16. It trains on the **CPU** backend even when WebGL is available: with ~17k weights, each GPU step's fixed overhead costs more than the maths. This cut training from 5.1 s to 1.0 s in Chromium and from 2.4 s to 1.7 s in WebKit.
 - **Why transfer learning:** MobileNet already "knows" edges, textures and shapes from millions of photos. We only train a tiny head on its output, so a few dozen images per class are enough and training takes about a second. Google's Teachable Machine uses the same idea.
 - **Validation:** 20% of each class (stratified) is held back during training, and the accuracy on it is shown after training.
 - **Uncertainty:** if the top class is below 60% probability, the app says "Not sure" instead of giving an answer (`DEFAULT_CONFIDENCE_THRESHOLD` in `src/ml/config.js`).
@@ -33,7 +34,7 @@ Measured 2026-11-27, @tensorflow/tfjs 4.22.
 
 **Reading these numbers:** flowers are a fairly hard test. The photos are cluttered, and roses and tulips look alike. Typical Teachable-style tasks (your own objects or gestures on a consistent background, from a webcam) are usually easier. Accuracy depends mostly on how varied and representative your samples are.
 
-**Timing:** embedding took about 90 ms per image on the Node CPU backend (Apple Silicon), and head training took about 1–1.5 s. Browsers use WebGL and are faster; this hasn't been benchmarked yet (Phase 8).
+**Timing:** embedding took about 90 ms per image on the Node CPU backend (Apple Silicon), and head training took about 1–1.5 s. Browser timings are in [QA.md](QA.md#measured-timings).
 
 ## Exported model
 
@@ -53,7 +54,7 @@ With only 4 held-back images per class, the accuracy shown after training is noi
 
 ## Browser verification
 
-`npm run test:e2e` runs the full journey (load model → add samples → train → predict) against the production build in headless Chromium and WebKit (Safari's engine). Headless Chromium ran on the WebGL backend. All passed on 2026-11-27. Real-device checks (iOS Safari, Android Chrome) are scheduled for Phase 7.
+`npm run test:e2e` runs the full journey (load model → add samples → train → predict) against the production build in five browser projects; see [QA.md](QA.md). Real-device checks are listed there too.
 
 ## Known limitations
 

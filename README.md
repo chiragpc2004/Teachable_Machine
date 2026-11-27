@@ -4,20 +4,20 @@ Train an image classifier in your browser. You don't write code, and your images
 
 Inspired by [Google's Teachable Machine](https://teachablemachine.withgoogle.com/). This is an independent project.
 
-> **Status: Phase 6 (UI polish).** The full journey works and has its final visual design: add images (picker, drag-and-drop, folders, zips), train, test images in batches, auto-save, and download the model or a project file. Next: device testing, then deployment. See [docs/PRODUCT.md](docs/PRODUCT.md).
+> **Status: Phase 8 (security, privacy, performance).** The full journey works, is tested in five browser projects, and runs under a strict Content Security Policy. Next: deployment to Cloudflare Pages. See [docs/PRODUCT.md](docs/PRODUCT.md).
 
 ## How it works
 
 1. You add example images to two or more classes.
 2. Each image goes through **MobileNet**, a small pretrained image network running in your browser via TensorFlow.js. MobileNet turns the image into 256 numbers that describe it.
-3. A tiny classifier is trained on those numbers in about a second. This is *transfer learning*, the same approach Google's tool uses.
+3. A tiny classifier is trained on those numbers in about a second. This is _transfer learning_, the same approach Google's tool uses.
 4. When you test a new image, you get a probability for every class. Low-confidence answers are shown as "Not sure".
 
 Details and measured accuracy are in [docs/MODEL.md](docs/MODEL.md).
 
 ## Run locally
 
-Requires Node 20+.
+Requires Node 22.12+.
 
 ```bash
 cd frontend
@@ -25,34 +25,39 @@ npm install
 npm run dev          # http://localhost:5173
 ```
 
-| Command | What it does |
-|---|---|
-| `npm run build` | Production build into `frontend/dist/` (static files only) |
-| `npm run preview` | Serve the production build locally |
-| `npm test` | Unit tests (Vitest), including loading the real MobileNet weights |
-| `npm run test:e2e` | Browser tests (Playwright: Chromium, Firefox, WebKit, emulated Android + iPhone) against the production build, including WCAG 2.2 AA checks (axe-core) and a 360 px layout check. Run `npx playwright install chromium webkit` once first |
-| `npm run lint` / `npm run format` | ESLint / Prettier |
-| `npm run fetch-model` | Re-download the MobileNet weights into `public/models/` |
-| `npm run validate-model -- <dir>` | Measure accuracy on a folder-per-class image dataset |
-| `node scripts/build-sample.mjs <flower_photos>` | Rebuild the bundled sample project (with photo credits) |
+| Command                                         | What it does                                                                                                                                                                                                                              |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run build`                                 | Production build into `frontend/dist/` (static files only)                                                                                                                                                                                |
+| `npm run preview`                               | Serve the production build locally                                                                                                                                                                                                        |
+| `npm test`                                      | Unit tests (Vitest), including loading the real MobileNet weights                                                                                                                                                                         |
+| `npm run test:e2e`                              | Browser tests (Playwright: Chromium, Firefox, WebKit, emulated Android + iPhone) against the production build, including WCAG 2.2 AA checks (axe-core) and a 360 px layout check. Run `npx playwright install chromium webkit` once first |
+| `npm run check-bundle`                          | After a build: checks download sizes against the budget (first load ≤ 100 KB, all JS ≤ 380 KB, gzipped)                                                                                                                                   |
+| `npm run perf`                                  | Timings of the sample journey in each browser project                                                                                                                                                                                     |
+| `npm run lint` / `npm run format`               | ESLint / Prettier                                                                                                                                                                                                                         |
+| `npm run fetch-model`                           | Re-download the MobileNet weights into `public/models/`                                                                                                                                                                                   |
+| `npm run validate-model -- <dir>`               | Measure accuracy on a folder-per-class image dataset                                                                                                                                                                                      |
+| `node scripts/build-sample.mjs <flower_photos>` | Rebuild the bundled sample project (with photo credits)                                                                                                                                                                                   |
 
-CI (GitHub Actions) runs lint, format check, unit tests, build and E2E tests on every push and pull request.
+CI (GitHub Actions) runs lint, format check, unit tests, build, the bundle budget and E2E tests on every push and pull request.
 
 ## Project structure
 
 ```
 frontend/
+├── public/_headers      # Security + cache headers (Cloudflare Pages; also applied by `npm run preview`)
 ├── public/models/       # Self-hosted MobileNet weights (1.96 MB)
 ├── public/samples/      # Sample project: 3 flower classes, CC-BY photos with credits
 ├── src/
 │   ├── ml/              # Framework-free ML: preprocess, feature extractor, classifier, export
 │   ├── project/         # Project state, zip/folder import, saving (IndexedDB), project files
-│   ├── app/             # App.jsx, the TF.js engine hook, sample loader
+│   ├── app/             # App.jsx, the ML engine (loaded lazily) and its hook, sample loader
 │   └── ui/              # React components
-├── scripts/             # fetch-model, validate-model
+├── scripts/             # fetch-model, validate-model, build-sample, check-bundle
 └── e2e/                 # Playwright tests
 docs/MODEL.md            # Pipeline, accuracy numbers, export format, limitations
 docs/PRODUCT.md          # v1 product spec
+docs/QA.md               # Test inventory, timings, manual device checklist, release gate
+docs/SECURITY.md         # Privacy, security headers, input limits, dependencies
 ```
 
 ## History

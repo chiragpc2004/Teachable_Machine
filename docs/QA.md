@@ -12,7 +12,9 @@ Run from `frontend/`. CI runs all of them on every push and pull request.
 | End-to-end (Playwright)  | `npm run test:e2e`                | Full journeys against the production build in five browser projects (below)                                                                                                                                                               |
 | Accessibility (axe-core) | part of E2E                       | WCAG 2.2 A/AA rules on first visit and on the trained + tested state; keyboard-only journey                                                                                                                                               |
 | Layout                   | part of E2E                       | No sideways scrolling at 360 px, before and after training                                                                                                                                                                                |
-| Failure scenarios        | part of E2E                       | Model download fails, no WebGL (CPU fallback), unreadable images, fake zip, incompatible project file, storage blocked, sample download fails                                                                                             |
+| Failure scenarios        | part of E2E                       | Model download fails, no WebGL (CPU fallback), unreadable images, fake zip, incompatible project file, storage blocked, sample download fails, 12 MP phone-size photos                                                                    |
+| Security                 | part of E2E                       | Every test fails on any Content Security Policy violation (`e2e/test.js`). `security.spec.js` checks the headers, caching and that no request goes to another site. See [SECURITY.md](SECURITY.md)                                        |
+| Bundle budget            | `npm run check-bundle`            | After a build: first load ≤ 100 KB, all JS ≤ 380 KB (gzipped)                                                                                                                                                                             |
 | Accuracy                 | `npm run validate-model -- <dir>` | Held-out accuracy on real photos (see [MODEL.md](MODEL.md))                                                                                                                                                                               |
 | Timings                  | `npm run perf`                    | User-perceived timings of the sample journey (opt-in; machine-dependent)                                                                                                                                                                  |
 
@@ -26,18 +28,21 @@ Run from `frontend/`. CI runs all of them on every push and pull request.
 | mobile-android | Chromium, Pixel 7 emulation | Viewport, touch and user agent only, not real phone hardware                                                                                                                                                                                                                                               |
 | mobile-iphone  | WebKit, iPhone 13 emulation | Same caveat                                                                                                                                                                                                                                                                                                |
 
-### Measured timings (2026-11-27)
+### Measured timings
 
-Headless browsers on the maintainer's Mac (Apple Silicon), all using WebGL. "Mobile" rows are emulated on the same Mac, so they are **not** phone performance.
+2026-11-27, after the Phase 8 speed-ups. Headless browsers on the maintainer's Mac (Apple Silicon). "Mobile" rows are emulated on the same Mac, so they are **not** phone performance.
 
 | Project                   | Model ready (cold) | Load sample (60 images) | Train | Test 9 images | Reload with saved project |
 | ------------------------- | ------------------ | ----------------------- | ----- | ------------- | ------------------------- |
-| chromium                  | 0.8 s              | 7.2 s                   | 5.1 s | 0.8 s         | 0.6 s                     |
-| webkit                    | 0.6 s              | 2.4 s                   | 3.3 s | 0.4 s         | 0.5 s                     |
-| mobile-android (emulated) | 1.6 s              | 6.1 s                   | 5.5 s | 0.7 s         | 1.3 s                     |
-| mobile-iphone (emulated)  | 0.6 s              | 2.5 s                   | 3.4 s | 0.4 s         | 0.5 s                     |
+| chromium                  | 0.8 s              | 7.4 s                   | 1.0 s | 1.4 s         | 0.6 s                     |
+| webkit                    | 0.7 s              | 2.5 s                   | 1.7 s | 0.4–0.9 s     | 0.5 s                     |
+| mobile-android (emulated) | 1.5 s              | 6.1 s                   | 1.0 s | 1.3 s         | 1.3 s                     |
+| mobile-iphone (emulated)  | 0.7 s              | 2.5 s                   | 1.7 s | 0.4 s         | 0.5 s                     |
 
-Training in the browser (3–5 s) is slower than in Node (~1 s). The likely cause is a GPU readback per training batch, which costs more than the maths at this model size. It's a Phase 8 optimisation candidate.
+- **Headless Chromium has no GPU.** It renders WebGL with SwiftShader, a software emulator, so its image steps (loading the sample, testing) are much slower than real Chrome. WebKit uses the Mac's real GPU.
+- **Training** was 3.3–5.5 s before Phase 8. The small classifier now trains on the CPU, where it's faster ([MODEL.md](MODEL.md)).
+- **Testing** in Chromium went from 0.8 s to 1.4 s, because the first test after training moves the classifier to the GPU. Training plus the first test is still faster overall: 2.4 s, down from 5.9 s.
+- **First download:** the page shell is 79 KB gzipped and appears straight away. TensorFlow.js (~285 KB) loads after it; before Phase 8 the page waited for all 331 KB.
 
 ## Manual checks (need real devices)
 
@@ -92,7 +97,7 @@ Record results in the table at the bottom.
 
 A build can be deployed to production only when all of these hold:
 
-- [ ] CI green: lint, format, unit, build, E2E in all five browser projects
+- [ ] CI green: lint, format, unit, build, bundle budget, E2E in all five browser projects (including the CSP guard)
 - [ ] Manual section A passes on at least one real iPhone and one real Android phone
 - [ ] Manual section B.5 (folder drop) passes in real Safari, or the limitation is documented
 - [ ] Manual section C passes with VoiceOver, with no blocking issues
@@ -101,7 +106,7 @@ A build can be deployed to production only when all of these hold:
 
 ## Known limitations (current)
 
-- **No offline support:** reloading without a connection fails, because the app isn't a PWA yet (candidate for Phase 8).
+- **No offline support:** reloading without a connection fails. Considered in Phase 8 and deferred: a service worker adds a real risk of visitors being stuck on an old version, and repeat visits are already fast because the model and app files are cached for 30 days and a year respectively. Worth revisiting if classroom use with poor Wi-Fi comes up.
 - **Light theme only.**
 - **Small-data accuracy:** with ~20 images per class, unusual photos can be misclassified confidently. One sample test photo (a tinted daisy close-up) often is. See [MODEL.md](MODEL.md).
 - **Large imports** (thousands of images) work but take a while on phones; the limits are 300 images per class and 3,000 per import.

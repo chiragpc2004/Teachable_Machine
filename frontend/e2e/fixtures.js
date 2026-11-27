@@ -36,3 +36,20 @@ export async function datasetZip(perClass = 6) {
   files['pets/notes.txt'] = new TextEncoder().encode('ignore me');
   return { name: 'pets.zip', mimeType: 'application/zip', buffer: Buffer.from(zipSync(files)) };
 }
+
+/** A phone-camera-sized (4032×3024) mostly-red JPEG: a smooth gradient, so it stays small on disk. */
+export function largePhoto(name = 'large-red.jpg') {
+  const width = 4032;
+  const height = 3024;
+  const data = Buffer.alloc(width * height * 4);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const i = (y * width + x) * 4;
+      data[i] = (180 + (x * 60) / width) | 0;
+      data[i + 1] = (30 + (y * 40) / height) | 0;
+      data[i + 2] = 40;
+      data[i + 3] = 255;
+    }
+  }
+  return { name, mimeType: 'image/jpeg', buffer: jpeg.encode({ data, width, height }, 85).data };
+}

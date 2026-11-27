@@ -1,5 +1,5 @@
-import { expect, test } from '@playwright/test';
-import { images } from './fixtures.js';
+import { expect, test } from './test.js';
+import { images, largePhoto } from './fixtures.js';
 import { addImages, classCard, openApp, testInput, trainModel } from './helpers.js';
 
 test.beforeEach(({ page }) => openApp(page));
@@ -24,6 +24,14 @@ test('trains on two classes and predicts new images', async ({ page }) => {
   await expect(headlines.nth(0)).toContainText('Red');
   await expect(headlines.nth(1)).toContainText('Blue');
   await expect(page.locator('.results').getByText('Not sure')).toHaveCount(0);
+});
+
+test('handles phone-camera-sized photos (12 MP)', async ({ page }) => {
+  await addImages(page, 0, [...images('red', 5), largePhoto()]); // counts 6, so the big one was added
+  await addImages(page, 1, images('blue', 6));
+  await trainModel(page);
+  await testInput(page).setInputFiles(largePhoto('large-test.jpg'));
+  await expect(page.locator('.result__headline')).toContainText('Class 1');
 });
 
 test('explains what is missing before training is allowed', async ({ page }) => {
