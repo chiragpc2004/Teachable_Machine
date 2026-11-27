@@ -35,9 +35,24 @@ Measured 2026-11-27, @tensorflow/tfjs 4.22.
 
 **Timing:** embedding took about 90 ms per image on the Node CPU backend (Apple Silicon), and head training took about 1–1.5 s. Browsers use WebGL and are faster; this hasn't been benchmarked yet (Phase 8).
 
+## Exported model
+
+**Export model** downloads `teachable-model.zip` with these files:
+- `model.json` + `weights.bin`: one self-contained TF.js layers model (MobileNet without its ImageNet classifier, plus the trained head). Input is `[1, 224, 224, 3]` scaled to [-1, 1]; output is one probability per class.
+- `metadata.json`: labels in output order, preprocessing, and the confidence threshold.
+- `README.md`: a copy-paste HTML/JS example including the preprocessing.
+
+A unit test checks that the exported model gives the same probabilities as the in-app pipeline, to 4 decimal places.
+
+## Sample project
+
+The bundled sample (`public/samples/flowers/`) has 20 training and 3 test photos per class (daisy, roses, sunflowers), taken from flower_photos by even spacing, not hand-picked. Each photo's CC-BY credit is in `ATTRIBUTION.md`. Two test photos are hard (a blue-tinted daisy close-up, a whole rose bush) and usually come back "Not sure". Across E2E runs, 6–7 of the 9 test photos were classified correctly, and the rest were mostly "Not sure" rather than confidently wrong.
+
+With only 4 held-back images per class, the accuracy shown after training is noisy. In two runs it read 75% and 92%.
+
 ## Browser verification
 
-`npm run test:e2e` runs the full journey (load model → add samples → train → predict) against the production build in headless Chromium and WebKit (Safari's engine). All passed on 2026-11-27. Real-device checks (iOS Safari, Android Chrome) are scheduled for Phase 7.
+`npm run test:e2e` runs the full journey (load model → add samples → train → predict) against the production build in headless Chromium and WebKit (Safari's engine). Headless Chromium ran on the WebGL backend. All passed on 2026-11-27. Real-device checks (iOS Safari, Android Chrome) are scheduled for Phase 7.
 
 ## Known limitations
 

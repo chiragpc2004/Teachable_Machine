@@ -24,4 +24,9 @@ export default defineConfig([
     extends: [js.configs.recommended],
     languageOptions: { ecmaVersion: 'latest', sourceType: 'module', globals: globals.node },
   },
+  {
+    // E2E specs also contain callbacks that run inside the browser via page.evaluate().
+    files: ['e2e/**/*.js'],
+    languageOptions: { globals: { ...globals.node, ...globals.browser } },
+  },
 ]);

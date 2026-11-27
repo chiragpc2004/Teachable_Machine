@@ -4,3 +4,4 @@ export { loadFeatureExtractor } from './featureExtractor.js';
 export { validateDataset, stratifiedSplit } from './dataset.js';
 export { createClassifierHead, trainClassifier, predictProbabilities } from './classifier.js';
 export { interpretPrediction } from './interpret.js';
+export { buildCombinedModel, exportModelZip } from './exportModel.js';

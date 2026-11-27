@@ -30,3 +30,6 @@ export const TRAINING_DEFAULTS = {
   dropout: 0.3,
   validationFraction: 0.2,
 };
+
+/** Identifies the embedding space; saved projects only work with the same extractor. */
+export const FEATURE_EXTRACTOR_ID = 'mobilenet_v1_0.25_224/conv_pw_13_relu/gap';
