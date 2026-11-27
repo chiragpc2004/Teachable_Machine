@@ -23,7 +23,7 @@ const skipAxeInFirefox = (browserName) =>
     'axe injection crashes headless Firefox in CI; DOM is engine-independent',
   );
 
-test('first visit has no WCAG A/AA violations', async ({ page, browserName }) => {
+test('first visit has no WCAG A/AA violations', { tag: '@smoke' }, async ({ page, browserName }) => {
   skipAxeInFirefox(browserName);
   const { violations } = await scan(page);
   expect(describe(violations)).toEqual([]);

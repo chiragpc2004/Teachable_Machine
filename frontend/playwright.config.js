@@ -1,13 +1,16 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const PORT = 4173;
+// Set SMOKE_URL to run the tests against a deployed site instead of a local build, e.g.
+// SMOKE_URL=https://teachable.pages.dev npm run test:smoke (see docs/DEPLOY.md).
+const SMOKE_URL = process.env.SMOKE_URL?.replace(/\/$/, '');
 
 export default defineConfig({
   testDir: 'e2e',
   timeout: 90_000,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? 'github' : 'list',
-  use: { baseURL: `http://localhost:${PORT}` },
+  use: { baseURL: SMOKE_URL ?? `http://localhost:${PORT}` },
   // Desktop engines plus emulated phones. Emulation covers viewport, touch and user agent, not
   // real device GPUs or memory; real-device checks are in docs/QA.md. Edge uses Chromium.
   projects: [
@@ -18,10 +21,12 @@ export default defineConfig({
     { name: 'mobile-iphone', use: { ...devices['iPhone 13'] } },
   ],
   // Tests run against the production build, not the dev server.
-  webServer: {
-    command: `npm run build && npx vite preview --port ${PORT} --strictPort`,
-    url: `http://localhost:${PORT}`,
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
-  },
+  webServer: SMOKE_URL
+    ? undefined
+    : {
+        command: `npm run build && npx vite preview --port ${PORT} --strictPort`,
+        url: `http://localhost:${PORT}`,
+        reuseExistingServer: !process.env.CI,
+        timeout: 120_000,
+      },
 });
