@@ -1,5 +1,5 @@
 // Working name. Change it here (and in index.html) when the final name is chosen.
-export const APP_NAME = 'Teachable';
+export const APP_NAME = 'Eyebright';
 
 export const APP_VERSION = import.meta.env.VITE_APP_VERSION ?? 'dev';
 

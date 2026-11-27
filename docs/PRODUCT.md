@@ -1,4 +1,4 @@
-# Teachable: Product Spec (v1)
+# Eyebright: Product Spec (v1)
 
 **One line:** train an image classifier in your browser in a couple of minutes. No code, no account, your images never leave your device, and you can take the model with you.
 
@@ -58,5 +58,5 @@ Not for: production ML teams, object detection, or large datasets (thousands of 
 ## Open questions
 
 1. **Sample project content.** I recommend about 3 classes × 20 small images, around 1 MB total. Options: openly licensed photos (for example a subset of TensorFlow's CC-BY flower photos, with attribution) or photos you take yourself.
-2. **Name and branding.** "Teachable" is a working name, and it's close to Google's product name. A distinct name should be chosen before public launch.
+2. **Name and branding.** Decided 2026-11-27: **Eyebright**, a wildflower once used for eye remedies, which nods to "seeing" and to the flower sample. It replaces the working name "Teachable", which was too close to Google's product. No clashing image-AI product was found, and `eyebright.pages.dev` was free.
 3. **Domain.** A custom domain, or the free `*.pages.dev` subdomain.

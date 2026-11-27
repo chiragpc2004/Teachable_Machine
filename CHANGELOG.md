@@ -4,6 +4,10 @@ Notable changes, newest first. Versions follow [semantic versioning](https://sem
 
 ## [Unreleased]
 
+### Changed
+
+- Renamed from the working name "Teachable" to **Eyebright**. Project files, saved data and the downloaded model now use the new name. There were no public users yet, so nothing needed migrating.
+
 ## [0.1.0]: first public release (not yet deployed)
 
 A rebuild of the project as a browser-only app.

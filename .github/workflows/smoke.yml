@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       url:
-        description: "Site URL, e.g. https://teachable.pages.dev"
+        description: "Site URL, e.g. https://eyebright.pages.dev"
         required: true
 
 permissions:

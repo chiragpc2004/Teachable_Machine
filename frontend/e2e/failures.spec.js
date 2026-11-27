@@ -58,7 +58,7 @@ test('a project file from another app version or model is refused clearly', asyn
   await openApp(page);
   const zip = zipSync({
     'project.json': strToU8(
-      JSON.stringify({ format: 'teachable-project', version: 1, featureExtractor: 'other' }),
+      JSON.stringify({ format: 'eyebright-project', version: 1, featureExtractor: 'other' }),
     ),
   });
   await page

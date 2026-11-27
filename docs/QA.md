@@ -58,7 +58,7 @@ Record results in the table at the bottom.
 3. Tap **Train model**. The progress bar moves, then "Model trained" appears with an accuracy line.
 4. Tap **Use sample test photos**. Nine results appear, each with three bars and a 60% tick.
 5. Reload the page. Classes, images and "Model trained" are still there.
-6. Tap **Download model**. A `teachable-model.zip` downloads (on iOS it goes to Files → Downloads).
+6. Tap **Download model**. A `eyebright-model.zip` downloads (on iOS it goes to Files → Downloads).
 7. **New project** → confirm. The page is empty again.
 
 ### B. Own images

@@ -1,7 +1,7 @@
 import { strFromU8, strToU8, unzipSync, zipSync } from 'fflate';
 import { FEATURE_EXTRACTOR_ID } from '../ml/config.js';
 
-const FORMAT = 'teachable-project';
+const FORMAT = 'eyebright-project';
 const VERSION = 1;
 
 export function float32ToBase64(array) {
@@ -57,7 +57,7 @@ export const MAX_PROJECT_BYTES = 200 * 1024 * 1024;
  * @returns {{ name: string, samples: { thumb: Blob, embedding: Float32Array }[] }[]}
  */
 export function importProjectFile(bytes, embeddingSize) {
-  const notProject = "This file isn't a Teachable project.";
+  const notProject = "This file isn't a Eyebright project.";
   let files;
   let tooBig = false;
   try {

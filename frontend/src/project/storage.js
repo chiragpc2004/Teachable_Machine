@@ -1,9 +1,9 @@
 import { del, get, set } from 'idb-keyval';
 import { FEATURE_EXTRACTOR_ID } from '../ml/config.js';
 
-const PROJECT_KEY = 'teachable:project:v1';
-const MODEL_META_KEY = 'teachable:model-meta:v1';
-const HEAD_URL = 'indexeddb://teachable-head-v1';
+const PROJECT_KEY = 'eyebright:project:v1';
+const MODEL_META_KEY = 'eyebright:model-meta:v1';
+const HEAD_URL = 'indexeddb://eyebright-head-v1';
 
 // Thumbnails are stored as raw bytes, not Blobs: some WebKit builds reject Blobs in
 // IndexedDB. Bytes are cached per Blob so auto-save doesn't re-read unchanged thumbnails.
