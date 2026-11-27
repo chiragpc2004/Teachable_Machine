@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test.js';
 import { openApp, trainModel } from './helpers.js';
 
 const pageWidth = (page) => page.evaluate(() => document.documentElement.scrollWidth);

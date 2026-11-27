@@ -1,4 +1,4 @@
-import * as tf from '@tensorflow/tfjs';
+import * as tf from '../tf.js';
 import { describe, expect, it } from 'vitest';
 import { predictProbabilities, trainClassifier } from '../classifier.js';
 

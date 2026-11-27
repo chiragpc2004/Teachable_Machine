@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../test.js';
 import { trainModel } from '../helpers.js';
 
 // User-perceived timings for the sample journey. Opt-in (PERF=1) because numbers depend on the

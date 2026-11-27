@@ -1,4 +1,4 @@
-import * as tf from '@tensorflow/tfjs';
+import * as tf from './tf.js';
 import { strToU8, zipSync } from 'fflate';
 import { DEFAULT_CONFIDENCE_THRESHOLD, FEATURE_EXTRACTOR_ID, IMAGE_SIZE } from './config.js';
 

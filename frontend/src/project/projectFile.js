@@ -47,30 +47,59 @@ export async function exportProjectFile(classes) {
   return zipSync(files, { level: 0 }); // JPEGs don't compress further
 }
 
+/** Limits for opening a project file: 10 classes × 300 images, plus project.json. */
+export const MAX_PROJECT_ENTRIES = 3001;
+export const MAX_PROJECT_BYTES = 200 * 1024 * 1024;
+
 /**
  * @param {Uint8Array} bytes
  * @param {number} embeddingSize expected embedding length
  * @returns {{ name: string, samples: { thumb: Blob, embedding: Float32Array }[] }[]}
  */
 export function importProjectFile(bytes, embeddingSize) {
+  const notProject = "This file isn't a Teachable project.";
   let files;
+  let tooBig = false;
   try {
-    files = unzipSync(bytes);
+    let count = 0;
+    let total = 0;
+    files = unzipSync(bytes, {
+      // Zip-bomb guard: sizes come from the zip's directory, before anything is extracted.
+      filter: (f) => {
+        count++;
+        total += f.originalSize;
+        if (count > MAX_PROJECT_ENTRIES || total > MAX_PROJECT_BYTES) tooBig = true;
+        return !tooBig;
+      },
+    });
   } catch {
-    throw new Error("This file isn't a Teachable project.");
+    throw new Error(notProject);
   }
-  if (!files['project.json']) throw new Error("This file isn't a Teachable project.");
-  const json = JSON.parse(strFromU8(files['project.json']));
-  if (json.format !== FORMAT) throw new Error("This file isn't a Teachable project.");
+  if (tooBig) throw new Error('This project file is too large to open.');
+  if (!files['project.json']) throw new Error(notProject);
+  let json;
+  try {
+    json = JSON.parse(strFromU8(files['project.json']));
+  } catch {
+    throw new Error('This project file is damaged.');
+  }
+  if (json?.format !== FORMAT) throw new Error(notProject);
   if (json.version > VERSION) throw new Error('This project was made with a newer version of the app.');
   if (json.featureExtractor !== FEATURE_EXTRACTOR_ID) {
     throw new Error('This project was made with a different image model and can’t be opened.');
   }
+  if (!Array.isArray(json.classes) || json.classes.some((c) => !Array.isArray(c?.samples)))
+    throw new Error('This project file is damaged.');
   return json.classes.map((cls) => ({
     name: String(cls.name),
     samples: cls.samples.map((s) => {
-      const embedding = base64ToFloat32(s.embedding);
-      if (embedding.length !== embeddingSize || !files[s.thumb])
+      let embedding;
+      try {
+        embedding = base64ToFloat32(s.embedding);
+      } catch {
+        embedding = null;
+      }
+      if (embedding?.length !== embeddingSize || !files[s.thumb])
         throw new Error('This project file is damaged.');
       return { thumb: new Blob([files[s.thumb]], { type: 'image/jpeg' }), embedding };
     }),

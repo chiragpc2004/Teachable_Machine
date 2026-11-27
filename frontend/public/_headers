@@ -1,0 +1,26 @@
+# Cloudflare Pages response headers. The local `npm run preview` server applies this file too
+# (see vite.config.js), so the end-to-end tests run under exactly these rules.
+# Docs: https://developers.cloudflare.com/pages/configuration/headers/
+
+# 'wasm-unsafe-eval' allows compiling WebAssembly only (not JavaScript eval): TensorFlow.js's
+# 64-bit integer helper (long.js) builds a tiny WebAssembly module and would otherwise log a
+# policy error on every visit. worker-src blob: is for fflate, which unzips in Web Workers.
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; img-src 'self' blob: data:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
+  Strict-Transport-Security: max-age=31536000
+
+# Hashed file names: a changed file gets a new name, so these can be cached forever.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# The model's folder name includes its version, so its files only change if we switch models.
+/models/*
+  Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
+
+/samples/*
+  Cache-Control: public, max-age=86400

@@ -3,7 +3,7 @@
 // photographer credits (required by the licence).
 //
 // Usage: node scripts/build-sample.mjs <path-to/flower_photos>
-import * as tf from '@tensorflow/tfjs';
+import * as tf from '../src/ml/tf.js';
 import jpeg from 'jpeg-js';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';

@@ -1,5 +1,5 @@
 import { useEffect, useReducer, useRef, useState } from 'react';
-import { validateDataset } from '../ml/index.js';
+import { validateDataset } from '../ml/dataset.js';
 import { collectFileList, expandZips, itemsToClasses } from '../project/datasetImport.js';
 import { downloadBytes } from '../project/download.js';
 import { exportProjectFile, importProjectFile, isProjectFile } from '../project/projectFile.js';
@@ -415,6 +415,18 @@ export default function App() {
                   It learns whatever differs between your classes, including backgrounds and lighting, so use
                   varied photos. A photo of something that matches none of your classes still gets spread
                   across them; that&rsquo;s what &ldquo;Not sure&rdquo; is for.
+                </p>
+              </details>
+              <details className="how">
+                <summary>Where are my photos kept?</summary>
+                <p>
+                  Only on this device. Everything runs in your browser, and the page never sends your images
+                  anywhere. To pick up where you left off, this browser keeps a small thumbnail of each image
+                  and the numbers MobileNet produced for it, but not your original photos.
+                </p>
+                <p>
+                  <strong>New project</strong> deletes all of it, and so does clearing this site&rsquo;s data
+                  in your browser settings.
                 </p>
               </details>
             </aside>

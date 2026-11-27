@@ -1,4 +1,3 @@
-import * as tf from '@tensorflow/tfjs';
 import { del, get, set } from 'idb-keyval';
 import { FEATURE_EXTRACTOR_ID } from '../ml/config.js';
 
@@ -55,6 +54,10 @@ export async function loadProject() {
   };
 }
 
+// TensorFlow.js is loaded on demand here, so the project code (and the page shell) doesn't
+// pull it into the first download.
+const loadTf = () => import('../ml/tf.js');
+
 export async function saveTrainedModel(head, meta) {
   await head.save(HEAD_URL);
   await set(MODEL_META_KEY, meta);
@@ -65,6 +68,7 @@ export async function loadTrainedModel() {
   const meta = await get(MODEL_META_KEY);
   if (!meta) return null;
   try {
+    const tf = await loadTf();
     return { head: await tf.loadLayersModel(HEAD_URL), meta };
   } catch {
     return null;
@@ -73,6 +77,7 @@ export async function loadTrainedModel() {
 
 export async function clearTrainedModel() {
   await del(MODEL_META_KEY);
+  const tf = await loadTf();
   await tf.io.removeModel(HEAD_URL).catch(() => {});
 }
 
