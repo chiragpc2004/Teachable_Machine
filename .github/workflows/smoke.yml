@@ -2,14 +2,14 @@ name: Smoke test (deployed site)
 
 # Runs the @smoke end-to-end tests against a deployed URL:
 # - automatically, if the host reports deployments to GitHub ("Deployments" on the repo page).
-#   Cloudflare Workers Builds may report check runs only, in which case run it by hand;
+#   Cloudflare Pages may report check runs only, in which case run it by hand;
 # - or by hand: Actions → "Smoke test (deployed site)" → Run workflow, and paste the URL.
 on:
   deployment_status:
   workflow_dispatch:
     inputs:
       url:
-        description: "Site URL, e.g. https://eyebright.chiragpc2004.workers.dev"
+        description: "Site URL, e.g. https://eyebright.pages.dev"
         required: true
 
 permissions:
